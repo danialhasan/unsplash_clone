@@ -1,10 +1,15 @@
-import Vue from "vue";
-import App from "./App.vue";
-import router from "./router";
+import { createApp } from 'vue'
+import './tailwind.css'
+import App from './App.vue'
+import { routes } from './routes.js'
+import { createRouter, createWebHistory } from 'vue-router'
 
-Vue.config.productionTip = false;
+const app = createApp(App)
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount("#app");
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+})
+
+app.use(router)
+app.mount('#app')
