@@ -7,7 +7,8 @@ router.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'views', 'index.html'));
 });
 router.get('/test', (req, res) => {
-  res.send("Hello World! This is the test route.")
+  res.send("Hello World! This is the test route.");
+  console.log(req)
 })
 
 module.exports = router;
