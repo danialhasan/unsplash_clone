@@ -1,25 +1,30 @@
 import Home from './views/Home.vue'
-import About from './views/About.vue'
 import NotFound from './views/NotFound.vue'
+import Users from './views/Users.vue'
+import Login from '@/components/LogIn.vue'
+import Register from '@/components/Register.vue'
 
 /** @type {import('vue-router').RouterOptions['routes']} */
 export const routes = [{
     path: '/',
     component: Home,
-    meta: {
-      title: 'One Commit, Two Builds'
-    }
+
   },
   {
-    path: '/about',
-    meta: {
-      title: 'About'
-    },
-    component: About,
-    // example of route level code-splitting
-    // this generates a separate chunk (About.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    // component: () => import('./views/About.vue')
+    name: "Users",
+    path: "/users",
+    component: Users,
+    children: [{
+        name: "Login",
+        path: "",
+        component: Login
+      },
+      {
+        name: "Register",
+        path: "register",
+        component: Register
+      }
+    ]
   },
   {
     path: '/:path(.*)',
