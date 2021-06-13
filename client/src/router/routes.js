@@ -1,6 +1,6 @@
-import Home from './views/Home.vue'
-import NotFound from './views/NotFound.vue'
-import Users from './views/Users.vue'
+import Home from '@/views/Home.vue'
+import NotFound from '@/views/NotFound.vue'
+import Users from '@/views/Users.vue'
 import Login from '@/components/LogIn.vue'
 import Register from '@/components/Register.vue'
 

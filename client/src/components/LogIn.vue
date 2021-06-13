@@ -1,8 +1,4 @@
-
 <script>
-/**
- * I'm going to have to implement my own Flash Messaging.
- */
 import axios from "axios";
 import { LockClosedIcon } from "@heroicons/vue/solid";
 
@@ -15,23 +11,47 @@ export default {
     LockClosedIcon,
   },
   methods: {
+    interactWithState() {
+      return this.$state.increase;
+    },
     autofillForm() {
       // For dev purposes.
       let username = document.getElementById("email_input");
       let password = document.getElementById("password_input");
-      username.value = "testemail12@gmail.com";
-      password.value = "thisisatestpassword";
+      username.value = "johnsmith14@gmail.com";
+      password.value = "johnsmithisthecoolestmanalive";
     },
     submitLoginFormContents(e) {
       e.preventDefault();
 
-      let username = document.getElementById("email_input");
+      /**
+       * It probably makes sense to store the username and
+       * password in the vuex store, alongside the JWT.
+       * 
+       * I have to call a dispatch to the vuex store, passing in the email and 
+       * password that have been put in the login form. Once I do that, I'll make
+       * the API call to /login/verify, passing in the email and password. The server
+       * will verify the details and if successful, generate a unique JWT key based on 
+       * the details, the private key, and the randomness of the hashing algorithm. The server
+       * will then send the JWT to the client where the store will receive it and put it in 
+       * localStorage. I'll use that localstorage JWT key to verify my login status to the server 
+       * every time I do something that involves my profile (liking pictures, adding them to collections, etc)
+       * 
+       * I'll also have logout functionality that deletes the JWT from the client and the server. First, 
+       * it'll send a DELETE (not post, delete) request to the logout route. The request header needs to have
+       * an authorization header of 'Bearer <JWT here>'. On the server, when it receives that request, it will
+       * validate the request by verifying the JWT with the private key. To my understanding, it doesn't need to 
+       * compare it to any username/password, since the JWT is uniquely generated when you log on; so, you can trust that when you
+       * receive it, it hasn't been modified in any way since that would change it and it would fail the verify test.
+       */
+
+      let email = document.getElementById("email_input");
       let password = document.getElementById("password_input");
 
-      console.log(`Email: ${username.value}, password:${password.value}`);
+      console.log(`Email: ${email.value}, password:${password.value}`);
       axios
         .post("http://localhost:9000/users/login/verify", {
-          username: username.value,
+          email: email.value,
           password: password.value,
         })
         .then((res) => {
@@ -46,6 +66,7 @@ export default {
   mounted() {
     this.autofillForm();
   },
+  computed: {},
 };
 </script>
 <template>

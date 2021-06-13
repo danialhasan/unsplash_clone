@@ -5,12 +5,12 @@ import './tailwind.css'
 import App from './App.vue'
 import {
   routes
-} from './routes.js'
+} from './router/routes.js'
 import {
   createRouter,
   createWebHistory
 } from 'vue-router'
-import FlashMessage from '@smartweb/vue-flash-message';
+import store from '@/store/index.js'
 
 const app = createApp(App)
 
@@ -18,7 +18,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 })
-
 app.use(router)
-app.use(FlashMessage)
+app.use(store)
 app.mount('#app')

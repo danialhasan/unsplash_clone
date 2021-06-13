@@ -4,6 +4,9 @@ const mongodbPassword = process.env.MONGODB_PASSWORD
 const userSchema = require('../schema/userSchema.js')
 const User = mongoose.model("user", userSchema, "Users")
 
+// jwt setup
+const jwt = require("jsonwebtoken")
+
 // express setup
 const express = require('express');
 const router = express.Router();
@@ -11,6 +14,7 @@ const router = express.Router();
 // bcrypt setup 
 const bcrypt = require('bcrypt');
 
+// connecting to MongoDB with Mongoose
 const connectionString = `mongodb+srv://dbAdmin:${process.env.MONGODB_PASSWORD}@cluster0.wcdjk.mongodb.net/UnsplashClone?retryWrites=true&w=majority`;
 try {
     mongoose.connect(connectionString, {
@@ -21,17 +25,27 @@ try {
     console.log("MongoDB Auth failed")
 }
 
-async function findUser(username) {
-    //for some reason this doesn't return false when this is run for a username that
-    //doesnt exist in the database
+async function findUser(email) {
+    /**
+     * findOne resolves to the document (if it exists), or null (if the document does not exist)
+     */
     return await User.findOne({
-        username
+        email
     })
 }
 
 router.get('/', (req, res) => {
     res.send("You hit the /users route.")
 });
+
+async function emptyCollections() {
+    let deleted = await User.deleteMany({})
+    if (deleted) {
+        console.log("All documents in collection deleted.")
+    } else {
+        console.log("There was an error in the deletion of documents.")
+    }
+}
 
 router.route('/login')
     .get((req, res) => {
@@ -41,45 +55,53 @@ router.route('/login')
         console.log(req)
         res.send("This is the login POST route")
     })
-router.post('/login/verify', (req, res) => {
+router.post('/login/verify', async (req, res) => {
     /**
-     * This route will take in the username and password and compare them to the 
-     * info in the database by using bcrypt's hash compare function 
-     * to compare the given plaintext password to the hashed password that resides in the 
-     * database. Logins will be done with Passportjs local strategy, with help
-     * from Traversy Media. 
+     * Since we're using JWT for auth, we create a new JWT for the user once they log in. 
+     * Every time they access a resource using their account, we check the request header
+     * to make sure their JWT matches our records by decoding it with our access token secret.
      */
-    console.log(req.body.username)
+    // emptyCollections()
+    console.log(req.body.email)
     console.log(req.body.password)
     // createUser(req.body.username, req.body.password)
-    if (findUser(req.body.username)) {
-        //user is in the database, now verify the given
-        //plaintext password to the databases' hashed password
-        res.write("User was found in profiles database")
+
+    let userObject = await findUser(req.body.email)
+
+    if (userObject != null) {
+        // res.write("User was found in profiles database")
+        console.log("User found \n\n")
+
+        console.log(`Users plaintext password: ${req.body.password}`)
+        console.log(`Users hashed password: ${userObject.hashedPassword}`)
+
+        // see if incoming plaintext password == hashedPassword in database
+        const passwordsMatch = await bcrypt.compare(req.body.password, userObject.hashedPassword)
+        if (passwordsMatch) {
+            // NOTE log user in with JWT
+            // generating JWT
+            const accessToken = jwt.sign(JSON.stringify(userObject), process.env.ACCESS_TOKEN_SECRET);
+            res.status(214);
+            res.statusMessage = "JWT Generated"
+            res.send(JSON.stringify(accessToken))
+
+
+        } else {
+            res.status(215);
+            res.statusMessage = "Incorrect password"
+            res.send("Incorrect password. Requested password did not match database password.")
+        }
     } else {
-        res.write("User was not found in profiles database.");
+        res.send("User was not found in profiles database.");
+        console.log("User not found \n\n")
+
     }
-    res.end()
 })
 router.post('/register', async (req, res) => {
-    /**
-     * This route will take in a username, password, name, and email and then
-     * validate them all for specific parameters (email has an @, password is of certain length, etc). 
-     * Then, it will check if the email is currently registered and then if the username is taken 
-     * (checking if either are in database).
-     * 
-     * If both are no, then the new user is probably fine to register, so then the password will be 
-     * hashed. A new profile will be created in the users database where all this information plus the
-     * hashed password will reside. 
-     * After that, the user should be good to log in, so they'll be redirected to the login page. 
-     */
     let passwordsMatch = await checkPasswords(req.body.password, req.body.verifyPassword);
     let usernameIsAvailable = await usernameAvailable(req.body.username)
     let emailIsUnique = await emailUnique(req.body.email);
     let hashedPassword = await hashPassword(req.body.password)
-    // console.log(hashedPassword)
-    // let hash = await hashPassword("BruhMomentThisIsATestPassword");
-    // console.log(hash)
 
     if (passwordsMatch && usernameIsAvailable && emailIsUnique && hashedPassword != undefined) {
         let newUser = await createAccount(req.body.username, req.body.name, req.body.email, hashedPassword);
@@ -95,31 +117,20 @@ router.post('/register', async (req, res) => {
             res.status(213).write("The email used for registration is already registered to an account. If this is you, please log in with your password.")
         }
     }
-
-
-    // hashPassword(req.body.password).then(async (hash) => {
-    //     // hash should be the hash that is returned by the hashPassword function after it hashes the password.
-    //     // Instead, it is undefined. Why? 
-    //     console.log("test")
-
-    //     console.log(`Passwords match: ${passwordsMatch}`)
-    //     console.log(`username is available: ${usernameIsAvailable}`)
-    //     console.log(`email is unique: ${emailIsUnique}`)
-    //     if (passwordsMatch || usernameIsAvailable || emailIsUnique) {
-    //         console.log("All tests pass")
-
-    //         // let newUser = await createAccount(req.body.username, req.body.name, req.body.email, hash);
-    //         // console.log(newUser)
-    //         console.log(`hashed password: ${hash}`) //undefined
-    //         let newUser = await createAccount(req.body.username, req.body.name, req.body.email, hash)
-    //     } else {
-    //         console.log("All tests do not pass")
-    //     }
-    // }, (error) => {
-    //     throw err;
-    // })
     res.end()
 })
+
+async function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1] //set token to authHeader.split(' ')[1] only if authHeader != null
+    if (token == null) return res.sendStatus(401)
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, userObject) => {
+        if (err) res.sendStatus(403);
+        req.user = userObject;
+        next()
+    })
+}
 
 function checkPasswords(p1, p2) {
     let regex = /^[A-Za-z0-9 ]+$/;
