@@ -1,5 +1,7 @@
 <script>
+import LogOut from "./LogOut.vue";
 export default {
+  components: { LogOut },
   name: "Navbar",
   data() {
     return {};
@@ -14,6 +16,11 @@ export default {
       const menu = document.getElementById("mobileMenu");
       menu.classList.toggle("hidden");
       menu.classList.toggle("flex");
+    },
+  },
+  computed: {
+    loggedIn() {
+      return this.$store.getters.loggedIn;
     },
   },
 };
@@ -60,10 +67,23 @@ export default {
           srcset=""
         />
       </div>
-      <div
-        class="w-12 h-full flex-none border-2 border-black"
-        @click="toggleMenu"
-      >
+      <div class="flex-none hidden ml-4 md:block">
+        <ul class="flex flex-row space-x-8">
+          <li v-if="!loggedIn">
+            <router-link :to="{ path: '/users' }">Sign in</router-link>
+          </li>
+          <li v-if="!loggedIn">
+            <router-link :to="{ path: '/users/register' }">Sign up</router-link>
+          </li>
+          <li v-if="loggedIn">
+            <router-link to="/profile">Profile</router-link>
+          </li>
+          <li v-if="loggedIn">
+            <router-link :to="{ name: 'Logout' }">Log Out</router-link>
+          </li>
+        </ul>
+      </div>
+      <div class="w-12 h-full flex-none md:hidden" @click="toggleMenu">
         <img
           src="/icons/menu.svg"
           alt="logo icon"
@@ -98,12 +118,18 @@ export default {
           space-y-12
         "
       >
-        <li><router-link :to="{ path: '/users' }">Sign in</router-link></li>
-        <li>
+        <li v-if="!loggedIn">
+          <router-link :to="{ path: '/users' }">Sign in</router-link>
+        </li>
+        <li v-if="!loggedIn">
           <router-link :to="{ path: '/users/register' }">Sign up</router-link>
         </li>
-        <li><router-link to="/">This is item 3</router-link></li>
-        <li><router-link to="/">This is item 4</router-link></li>
+        <li v-if="loggedIn">
+          <router-link to="/profile">Profile</router-link>
+        </li>
+        <li v-if="loggedIn">
+          <router-link :to="{ name: 'Logout' }">Log Out</router-link>
+        </li>
       </ul>
     </div>
   </div>

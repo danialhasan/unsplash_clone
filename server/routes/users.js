@@ -56,6 +56,7 @@ router.route('/login')
         res.send("This is the login POST route")
     })
 router.post('/login/verify', async (req, res) => {
+    // emptyCollections()
     /**
      * Since we're using JWT for auth, we create a new JWT for the user once they log in. 
      * Every time they access a resource using their account, we check the request header
@@ -78,12 +79,16 @@ router.post('/login/verify', async (req, res) => {
         // see if incoming plaintext password == hashedPassword in database
         const passwordsMatch = await bcrypt.compare(req.body.password, userObject.hashedPassword)
         if (passwordsMatch) {
+            console.log(`Passwords match: ${passwordsMatch}`)
             // NOTE log user in with JWT
             // generating JWT
-            const accessToken = jwt.sign(JSON.stringify(userObject), process.env.ACCESS_TOKEN_SECRET);
+            const accessTokenObject = {
+                accessToken: jwt.sign(JSON.stringify(userObject), process.env.ACCESS_TOKEN_SECRET)
+            }
+
             res.status(214);
             res.statusMessage = "JWT Generated"
-            res.send(JSON.stringify(accessToken))
+            res.json(accessTokenObject)
 
 
         } else {
@@ -92,10 +97,15 @@ router.post('/login/verify', async (req, res) => {
             res.send("Incorrect password. Requested password did not match database password.")
         }
     } else {
-        res.send("User was not found in profiles database.");
+        res.status(216);
+        res.send("Email not found.");
         console.log("User not found \n\n")
 
     }
+})
+router.delete('/logout', (req, res) => {
+    console.log("token destroyed")
+    res.send("token destroyed")
 })
 router.post('/register', async (req, res) => {
     let passwordsMatch = await checkPasswords(req.body.password, req.body.verifyPassword);
@@ -120,17 +130,14 @@ router.post('/register', async (req, res) => {
     res.end()
 })
 
-async function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1] //set token to authHeader.split(' ')[1] only if authHeader != null
-    if (token == null) return res.sendStatus(401)
+router.post('/profile', async (req, res) => {
+    // get profile data from mongodb
+    console.log(`email received: ${req.body.email}`)
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, userObject) => {
-        if (err) res.sendStatus(403);
-        req.user = userObject;
-        next()
-    })
-}
+    let user = await findUser(req.body.email)
+
+    res.send(user);
+})
 
 function checkPasswords(p1, p2) {
     let regex = /^[A-Za-z0-9 ]+$/;

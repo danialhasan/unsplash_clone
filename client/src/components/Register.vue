@@ -24,11 +24,11 @@ export default {
       let username = document.getElementById("username_input");
       let password = document.getElementById("password_input");
       let verifyPassword = document.getElementById("verify_password_input");
-      name.value = "John Smith";
-      email.value = "johnsmith14@gmail.com";
-      username.value = "johnsmith";
-      password.value = "johnsmithisthecoolestmanalive";
-      verifyPassword.value = "johnsmithisthecoolestmanalive";
+      name.value = "Shamu Spamu";
+      email.value = "realniggasham@realniggasite.com";
+      username.value = "blackairforces";
+      password.value = "whoseeyesarethoseeyes";
+      verifyPassword.value = "whoseeyesarethoseeyes";
     },
     deleteFlashMessage() {
       setTimeout(() => {
@@ -59,7 +59,7 @@ export default {
           textColor: "text-red-700",
           title: "Password too simple",
           description:
-            "Your password is too simple. Pick a password with uppercase and lowercase characters, as well as numbers.",
+            "Your password is too simple. Pick a password with uppercase and lowercase characters, as well as numbers. No special characters.",
         };
         this.showFlashMessage = true;
         setTimeout(() => {
@@ -68,6 +68,7 @@ export default {
         return false;
       } else {
         console.log("Passwords are good");
+        return true;
       }
     },
     submitRegisterFormContents() {
@@ -77,86 +78,89 @@ export default {
       let password = document.getElementById("password_input");
       let verifyPassword = document.getElementById("verify_password_input");
 
-      this.checkPasswords(password.value, verifyPassword.value);
+      if (!this.checkPasswords(password.value, verifyPassword.value)) {
+        throw new Error();
+      }
+      try {
+        console.log(`Email: ${username.value}, password:${password.value}`);
+        axios
+          .post("http://localhost:9000/users/register", {
+            name: name.value,
+            email: email.value,
+            username: username.value,
+            password: password.value,
+            verifyPassword: verifyPassword.value,
+          })
+          .then((res) => {
+            console.log("Response:");
+            console.log(res);
+            switch (res.status) {
+              case 210:
+                console.log("Account created by server!");
+                this.flashMessageData = {
+                  role: "success",
+                  backgroundColor: "bg-green-100",
+                  accentColor: "border-green-500",
+                  textColor: "text-green-700",
+                  title: "Success!",
+                  description:
+                    "Your account was created successfully. You can log in now!",
+                };
+                this.showFlashMessage = true;
+                this.deleteFlashMessage();
+                break;
+              case 211:
+                console.log("Passwords did not match.");
+                this.flashMessageData = {
+                  role: "alert",
+                  backgroundColor: "bg-red-100",
+                  accentColor: "border-red-500",
+                  textColor: "text-red-700",
+                  title: "Password verification failed",
+                  description: "Your passwords did not match.",
+                };
+                this.showFlashMessage = true;
+                this.deleteFlashMessage();
+                break;
+              case 212:
+                console.log("Username was not available.");
+                this.flashMessageData = {
+                  role: "alert",
+                  backgroundColor: "bg-red-100",
+                  accentColor: "border-red-500",
+                  textColor: "text-red-700",
+                  title: "Username is already taken",
+                  description:
+                    "The username you picked was already taken. Please pick another one.",
+                };
+                this.showFlashMessage = true;
+                this.deleteFlashMessage();
+                break;
+              case 213:
+                console.log(
+                  "The email used for registration is already registered to an account. If this is you, please log in with your password."
+                );
+                this.flashMessageData = {
+                  role: "alert",
+                  backgroundColor: "bg-red-100",
+                  accentColor: "border-red-500",
+                  textColor: "text-red-700",
+                  title: "Email already exists",
+                  description:
+                    "The email used for registration is already registered to an account. If this is you, please log in with your password.",
+                };
+                this.showFlashMessage = true;
+                this.deleteFlashMessage();
+                break;
 
-      console.log(`Email: ${username.value}, password:${password.value}`);
-      axios
-        .post("http://localhost:9000/users/register", {
-          name: name.value,
-          email: email.value,
-          username: username.value,
-          password: password.value,
-          verifyPassword: verifyPassword.value,
-        })
-        .then((res) => {
-          console.log("Response:");
-          console.log(res);
-          switch (res.status) {
-            case 210:
-              console.log("Account created by server!");
-              this.flashMessageData = {
-                role: "success",
-                backgroundColor: "bg-green-100",
-                accentColor: "border-green-500",
-                textColor: "text-green-700",
-                title: "Success!",
-                description:
-                  "Your account was created successfully. You can log in now!",
-              };
-              this.showFlashMessage = true;
-              this.deleteFlashMessage();
-              break;
-            case 211:
-              console.log("Passwords did not match.");
-              this.flashMessageData = {
-                role: "alert",
-                backgroundColor: "bg-red-100",
-                accentColor: "border-red-500",
-                textColor: "text-red-700",
-                title: "Password verification failed",
-                description: "Your passwords did not match.",
-              };
-              this.showFlashMessage = true;
-              this.deleteFlashMessage();
-              break;
-            case 212:
-              console.log("Username was not available.");
-              this.flashMessageData = {
-                role: "alert",
-                backgroundColor: "bg-red-100",
-                accentColor: "border-red-500",
-                textColor: "text-red-700",
-                title: "Username is already taken",
-                description:
-                  "The username you picked was already taken. Please pick another one.",
-              };
-              this.showFlashMessage = true;
-              this.deleteFlashMessage();
-              break;
-            case 213:
-              console.log(
-                "The email used for registration is already registered to an account. If this is you, please log in with your password."
-              );
-              this.flashMessageData = {
-                role: "alert",
-                backgroundColor: "bg-red-100",
-                accentColor: "border-red-500",
-                textColor: "text-red-700",
-                title: "Email already exists",
-                description:
-                  "The email used for registration is already registered to an account. If this is you, please log in with your password.",
-              };
-              this.showFlashMessage = true;
-              this.deleteFlashMessage();
-              break;
-
-            default:
-              break;
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+              default:
+                break;
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      } catch (error) {}
     },
     preventSpaces(key) {
       if (key.keyCode == 32) {

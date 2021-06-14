@@ -1,65 +1,114 @@
 <script>
 import axios from "axios";
 import { LockClosedIcon } from "@heroicons/vue/solid";
+import FlashMessage from "@/components/FlashMessage.vue";
 
 export default {
   name: "Log in",
   data() {
-    return {};
+    return {
+      loading: false,
+      email: "",
+      password: "",
+      showFlashMessage: false,
+      flashMessageData: {
+        role: "success",
+        backgroundColor: "bg-indigo-100",
+        accentColor: "border-indigo-500",
+        textColor: "text-indigo-700",
+        title: "Success!",
+        description: "This is a success message!",
+      },
+    };
   },
   components: {
     LockClosedIcon,
+    FlashMessage,
   },
   methods: {
+    setLoadingIcon(element) {
+      console.log(element);
+    },
     interactWithState() {
       return this.$state.increase;
     },
+    deleteFlashMessage() {
+      setTimeout(() => {
+        this.showFlashMessage = false;
+      }, 5000);
+    },
     autofillForm() {
       // For dev purposes.
-      let username = document.getElementById("email_input");
-      let password = document.getElementById("password_input");
-      username.value = "johnsmith14@gmail.com";
-      password.value = "johnsmithisthecoolestmanalive";
+      this.email = "realniggasham@realniggasite.com";
+      this.password = "whoseeyesarethoseeyes";
     },
     submitLoginFormContents(e) {
       e.preventDefault();
 
-      /**
-       * It probably makes sense to store the username and
-       * password in the vuex store, alongside the JWT.
-       * 
-       * I have to call a dispatch to the vuex store, passing in the email and 
-       * password that have been put in the login form. Once I do that, I'll make
-       * the API call to /login/verify, passing in the email and password. The server
-       * will verify the details and if successful, generate a unique JWT key based on 
-       * the details, the private key, and the randomness of the hashing algorithm. The server
-       * will then send the JWT to the client where the store will receive it and put it in 
-       * localStorage. I'll use that localstorage JWT key to verify my login status to the server 
-       * every time I do something that involves my profile (liking pictures, adding them to collections, etc)
-       * 
-       * I'll also have logout functionality that deletes the JWT from the client and the server. First, 
-       * it'll send a DELETE (not post, delete) request to the logout route. The request header needs to have
-       * an authorization header of 'Bearer <JWT here>'. On the server, when it receives that request, it will
-       * validate the request by verifying the JWT with the private key. To my understanding, it doesn't need to 
-       * compare it to any username/password, since the JWT is uniquely generated when you log on; so, you can trust that when you
-       * receive it, it hasn't been modified in any way since that would change it and it would fail the verify test.
-       */
+      // set loading animation
+      this.loading = true;
 
-      let email = document.getElementById("email_input");
-      let password = document.getElementById("password_input");
-
-      console.log(`Email: ${email.value}, password:${password.value}`);
-      axios
-        .post("http://localhost:9000/users/login/verify", {
-          email: email.value,
-          password: password.value,
-        })
+      console.log(`Email: ${this.email}, password:${this.password}`);
+      let email = this.email.toLowerCase();
+      let password = this.password;
+      let credentials = {
+        email,
+        password,
+      };
+      //calling retrieveToken action to vueX store with credentials as payload
+      this.$store
+        .dispatch("retrieveToken", credentials)
         .then((res) => {
-          console.log("Response:");
+          this.loading = true;
           console.log(res);
+          // if user is able to log in, get their profile info
+          // from the database and save it to the store. Updates to it shall be
+          // done through the store, and on every update, the new info will be pushed
+          // to the database to update it.
+
+          this.$store
+            .dispatch("setProfile", email)
+            .then((res) => {
+              console.log(this.$store.getters.getProfile);
+            })
+            .catch((error) => {
+              throw error;
+            });
+          this.$router.push({ name: "Profile" });
         })
         .catch((error) => {
-          console.error(error);
+          console.log(error);
+          // switch case to take action depending on type of error receives
+          switch (error.statusCode) {
+            case 215:
+              console.log("Incorrect Password (flash message)");
+              this.flashMessageData = {
+                role: "alert",
+                backgroundColor: "bg-red-100",
+                accentColor: "border-red-500",
+                textColor: "text-red-700",
+                title: "Password verification failed",
+                description: "Your password was incorrect. Please try again.",
+              };
+              this.showFlashMessage = true;
+              this.deleteFlashMessage();
+              break;
+            case 216:
+              console.log("Email was not found in database (flash message)");
+              this.flashMessageData = {
+                role: "alert",
+                backgroundColor: "bg-red-100",
+                accentColor: "border-red-500",
+                textColor: "text-red-700",
+                title: "Account not found",
+                description:
+                  "We did not find an account with your email in our database. Please try again.",
+              };
+              this.showFlashMessage = true;
+              this.deleteFlashMessage();
+            default:
+              break;
+          }
         });
     },
   },
@@ -102,6 +151,7 @@ export default {
             <label for="email-address" class="sr-only">Email address</label>
             <input
               id="email_input"
+              v-model="email"
               name="email"
               type="email"
               autocomplete="email"
@@ -133,6 +183,7 @@ export default {
               id="password_input"
               name="password"
               type="password"
+              v-model="password"
               autocomplete="current-password"
               required=""
               class="
@@ -158,39 +209,10 @@ export default {
           </div>
         </div>
 
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input
-              id="remember_me"
-              name="remember_me"
-              type="checkbox"
-              class="
-                h-4
-                w-4
-                text-indigo-600
-                focus:ring-indigo-500
-                border-gray-300
-                rounded
-              "
-            />
-            <label for="remember_me" class="ml-2 block text-sm text-gray-900">
-              Remember me
-            </label>
-          </div>
-
-          <div class="text-sm">
-            <a
-              href="#"
-              class="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Forgot your password?
-            </a>
-          </div>
-        </div>
-
         <div>
           <button
             type="submit"
+            id="login_form_submit_btn"
             @click="submitLoginFormContents"
             class="
               group
@@ -217,6 +239,27 @@ export default {
                 aria-hidden="true"
               />
             </span>
+            <span v-if="loading" id="loading_icon">
+              <svg
+                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path></svg
+            ></span>
             Sign in
           </button>
           <div class="w-full h-auto text-center py-4">
@@ -231,6 +274,16 @@ export default {
           </div>
         </div>
       </form>
+    </div>
+    <div
+      id="flash_message_container"
+      class="fixed right-0 bottom-0 w-full h-auto"
+    >
+      <flash-message
+        @click="this.showFlashMessage = !this.showFlashMessage"
+        v-bind="this.flashMessageData"
+        v-if="this.showFlashMessage"
+      />
     </div>
   </div>
 </template>

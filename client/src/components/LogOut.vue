@@ -1,0 +1,10 @@
+<script>
+export default {
+  created() {
+    this.$store.dispatch("destroyToken").then((res) => {
+      this.$router.push("/");
+    });
+  },
+};
+</script>
+<template></template>
