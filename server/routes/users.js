@@ -132,10 +132,16 @@ router.post('/register', async (req, res) => {
 
 router.post('/profile', async (req, res) => {
     // get profile data from mongodb
-    console.log(`email received: ${req.body.email}`)
+    console.log(req.body.email)
+    let user = await findUser(req.body.email);
+    if (user == null) res.status(217).send('User not found');
 
-    let user = await findUser(req.body.email)
-
+    //This if statement will likely never be true, since this post request is being made
+    //from inside a function in store.js (client side) that validates the user has
+    //just logged in with this very email. However, I like to account for all possible 
+    //cases, so i added it anyway.
+    console.log('User profile found')
+    console.log(user)
     res.send(user);
 })
 

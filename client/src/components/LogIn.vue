@@ -19,6 +19,7 @@ export default {
         title: "Success!",
         description: "This is a success message!",
       },
+      profile: this.$store.state.profile,
     };
   },
   components: {
@@ -60,21 +61,30 @@ export default {
         .dispatch("retrieveToken", credentials)
         .then((res) => {
           this.loading = true;
-          console.log(res);
           // if user is able to log in, get their profile info
           // from the database and save it to the store. Updates to it shall be
           // done through the store, and on every update, the new info will be pushed
           // to the database to update it.
 
           this.$store
-            .dispatch("setProfile", email)
+            .dispatch("setProfile", { email })
             .then((res) => {
+              // if (!res) return;
+              console.log("setProfile action was successful");
+              console.log("Profile:");
               console.log(this.$store.getters.getProfile);
+              localStorage.setItem("email", email);
+              console.log(
+                `Email saved to localstorage: ${localStorage.getItem("email")}`
+              );
+              this.$router.push({ name: "Profile" });
+              console.log("Profile router pushed");
+              return;
             })
             .catch((error) => {
+              console.error("setProfile action was not successful");
               throw error;
             });
-          this.$router.push({ name: "Profile" });
         })
         .catch((error) => {
           console.log(error);

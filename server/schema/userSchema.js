@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Name is required']
     },
+    bio: {
+        type: String,
+        required: false
+    },
     hashedPassword: {
         type: String,
         required: [true, 'Hashed Password is required']

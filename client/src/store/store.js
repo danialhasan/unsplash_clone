@@ -6,9 +6,9 @@ export default Vuex.createStore({
         count: 0,
         token: localStorage.getItem('accessToken') || null,
         profile: {
-            username: '',
-            name: '',
-            email: ''
+            username: null,
+            name: null,
+            email: localStorage.getItem('email') || null
         }
     },
     mutations: {
@@ -23,15 +23,24 @@ export default Vuex.createStore({
         }
     },
     actions: {
-        setProfile(context, email) {
-            console.log(email)
-            axios.post("http://localhost:9000/users/profile", email)
-                .then((res) => {
-                    console.log(`response data: ${res.data}`);
-                    context.profile = res.data.user
-                }).catch((error) => {
-                    throw error
-                })
+        async setProfile(context, email) {
+            return new Promise((resolve, reject) => {
+                console.log(email)
+                axios.post("http://localhost:9000/users/profile", email)
+                    // get profile info from mongodb from server
+                    .then((res) => {
+                        if (res.statusCode == 217) console.log(res.data);
+
+                        //user profile data received
+                        context.state.profile = res.data;
+                        console.log("Profile set:")
+                        console.log(context.state.profile)
+                        resolve(context.state.profile)
+                    }).catch((error) => {
+                        reject(error)
+                        throw error
+                    })
+            })
         },
 
         async retrieveToken(context, credentials) { // get token from server, store in localstorage
@@ -62,7 +71,7 @@ export default Vuex.createStore({
                     })
             })
         },
-        destroyToken(context) {
+        destroyToken(context) { // log out
             axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.token
             if (context.getters.loggedIn) {
                 return new Promise((resolve, reject) => {
@@ -70,7 +79,7 @@ export default Vuex.createStore({
                         .delete("http://localhost:9000/users/logout")
                         .then((res) => {
                             localStorage.removeItem('accessToken')
-                            console.log(localStorage.getItem('accessToken'));
+                            localStorage.removeItem('email')
                             context.commit('destroyToken')
                             resolve(res)
                         })
