@@ -25,16 +25,16 @@ export default Vuex.createStore({
     actions: {
         async setProfile(context, email) {
             return new Promise((resolve, reject) => {
-                console.log(email)
+                // console.log(email)
                 axios.post("http://localhost:9000/users/profile", email)
                     // get profile info from mongodb from server
                     .then((res) => {
-                        if (res.statusCode == 217) console.log(res.data);
+                        //  if (res.statusCode == 217)  console.log(res.data);
 
                         //user profile data received
                         context.state.profile = res.data;
-                        console.log("Profile set:")
-                        console.log(context.state.profile)
+                        // console.log("Profile set:")
+                        // console.log(context.state.profile)
                         resolve(context.state.profile)
                     }).catch((error) => {
                         reject(error)
@@ -54,7 +54,7 @@ export default Vuex.createStore({
                         const accessToken = res.data.accessToken
 
                         if (accessToken === undefined) {
-                            console.log("accessToken was undefined")
+                            // console.log("accessToken was undefined")
                             throw {
                                 name: "accessToken undefined",
                                 message: "accessToken given from server was undefined. This means the server received our request and credentials, rejected our credentials, and did not give us a JWT.",
@@ -62,7 +62,7 @@ export default Vuex.createStore({
                             }
                         }
                         localStorage.setItem('accessToken', accessToken)
-                        console.log(localStorage.getItem('accessToken'));
+                        // console.log(localStorage.getItem('accessToken'));
                         context.commit('retrieveToken', accessToken)
                         resolve(res)
                     })

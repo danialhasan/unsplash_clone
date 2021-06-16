@@ -40,7 +40,7 @@ export default {
     },
     autofillForm() {
       // For dev purposes.
-      this.email = "realniggasham@realniggasite.com";
+      this.email = "johnsmith@gmail.com";
       this.password = "whoseeyesarethoseeyes";
     },
     submitLoginFormContents(e) {

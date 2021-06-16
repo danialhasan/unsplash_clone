@@ -24,9 +24,9 @@ export default {
       let username = document.getElementById("username_input");
       let password = document.getElementById("password_input");
       let verifyPassword = document.getElementById("verify_password_input");
-      name.value = "Shamu Spamu";
-      email.value = "realniggasham@realniggasite.com";
-      username.value = "blackairforces";
+      name.value = "John Smith";
+      email.value = "johnsmith@gmail.com";
+      username.value = "blackairforces1";
       password.value = "whoseeyesarethoseeyes";
       verifyPassword.value = "whoseeyesarethoseeyes";
     },

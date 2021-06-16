@@ -26,7 +26,7 @@ export default {
 };
 </script>
 <template>
-  <div class="w-full h-20 bg-gray-50 border-2 border-black p-4">
+  <div class="w-full h-20 bg-gray-50 p-4">
     <div
       class="
         flex flex-row flex-nowrap
@@ -36,7 +36,7 @@ export default {
         h-full
       "
     >
-      <div class="w-12 h-full flex-none bg-no-repeat border-2 border-black">
+      <div class="w-12 h-full flex-none bg-no-repeat">
         <router-link to="/">
           <img
             src="/icons/logo.svg"
@@ -52,17 +52,18 @@ export default {
           mx-4
           bg-gray-100
           border-2 border-black
+          rounded-lg
         "
       >
         <input
           type="text"
           id="imageInput"
-          class="w-full h-full border-none bg-gray-100"
+          class="w-full h-full border-none bg-gray-100 rounded-lg"
         />
         <img
           src="/icons/search.svg"
           @click="searchImages"
-          class="w-auto h-full"
+          class="w-auto h-full mr-2"
           alt=""
           srcset=""
         />
