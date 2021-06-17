@@ -5,6 +5,7 @@ import Login from '@/components/LogIn.vue'
 import LogOut from '@/components/LogOut.vue'
 import Register from '@/components/Register.vue'
 import Profile from '@/views/Profile.vue'
+import EditProfile from '@/views/EditProfile.vue'
 
 /** @type {import('vue-router').RouterOptions['routes']} */
 export const routes = [{
@@ -43,6 +44,14 @@ export const routes = [{
     name: "Profile",
     path: "/profile",
     component: Profile,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    name: "EditProfile",
+    path: "/profile/edit",
+    component: EditProfile,
     meta: {
       requiresAuth: true
     }

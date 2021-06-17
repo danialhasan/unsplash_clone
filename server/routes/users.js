@@ -146,7 +146,8 @@ router.route('/profile')
     .patch(async (req, res) => {
         // take edited profile data in request, compare to profile currently in database. 
         // Take differences between the two and push the editedProfile data into the old profile. 
-        console.log('Patch request for /profile received')
+        console.log(req.body)
+        res.send("Patch request received!")
     })
 router.patch('/profile/image', async (req, res) => {
     let user = await findUser(req.body.email)

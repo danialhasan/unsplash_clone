@@ -9,7 +9,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div class="bg-gray-50 min-h-screen">
     <navbar />
     <main>
       <router-view />
