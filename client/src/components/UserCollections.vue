@@ -4,7 +4,7 @@ export default {
   data() {
     return {};
   },
-  props: ["likes"],
+  props: ["collections"],
   /**
    * For some reason, passing a string to the image prop gives a typeError when image
    * is laid out like this. 
@@ -19,7 +19,7 @@ export default {
 <template>
   <div class="w-full h-auto border border-red-400">
     <h1 class="font-bold text-3xl text-center">
-      This is the userlikes component.
+      This is the usercollections component.
     </h1>
   </div>
 </template>

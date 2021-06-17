@@ -6,6 +6,9 @@ export default Vuex.createStore({
         count: 0,
         token: localStorage.getItem('accessToken') || null,
         profile: {
+            // NOTE: Data flows from here down to the Profile component, not the other way around. 
+            // This gets updated first, which updates the Profile component. This pattern is for 
+            // all components interacting with the store. 
             username: null,
             name: null,
             email: localStorage.getItem('email') || null
@@ -24,21 +27,40 @@ export default Vuex.createStore({
     },
     actions: {
         async setProfile(context, email) {
+            // get profile from database and update the vuex store profile with it
             return new Promise((resolve, reject) => {
                 // console.log(email)
                 axios.post("http://localhost:9000/users/profile", email)
                     // get profile info from mongodb from server
                     .then((res) => {
-                        //  if (res.statusCode == 217)  console.log(res.data);
-
                         //user profile data received
                         context.state.profile = res.data;
-                        // console.log("Profile set:")
-                        // console.log(context.state.profile)
                         resolve(context.state.profile)
                     }).catch((error) => {
-                        reject(error)
+                        reject(error);
                         throw error
+                    })
+            })
+        },
+        async updateProfile(context, editedProfile, email) {
+            // this updates the whole profile. All parts.
+        },
+        async updateProfileDisplayImage(context, data) {
+            // this updates the whole profiles image. Nothing else.
+            return new Promise((resolve, reject) => {
+
+                axios.patch('http://localhost:9000/users/profile/image', data)
+                    .then((res) => {
+                        context.dispatch('setProfile', {
+                            email: data.email
+                        }).then((res) => {
+                            resolve("Successfully updated display image in database");
+                        })
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        reject("Unable to update display image in database");
+                        throw err
                     })
             })
         },

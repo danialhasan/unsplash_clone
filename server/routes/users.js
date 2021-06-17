@@ -130,19 +130,38 @@ router.post('/register', async (req, res) => {
     res.end()
 })
 
-router.post('/profile', async (req, res) => {
-    // get profile data from mongodb
-    console.log(req.body.email)
-    let user = await findUser(req.body.email);
-    if (user == null) res.status(217).send('User not found');
-
-    //This if statement will likely never be true, since this post request is being made
-    //from inside a function in store.js (client side) that validates the user has
-    //just logged in with this very email. However, I like to account for all possible 
-    //cases, so i added it anyway.
-    console.log('User profile found')
-    console.log(user)
-    res.send(user);
+router.route('/profile')
+    .post(async (req, res) => {
+        // get profile data from mongodb, send to client to update vuex store
+        console.log(req.body.email)
+        let user = await findUser(req.body.email);
+        if (user == null) {
+            res.status(217).send('User not found')
+        } else {
+            console.log('User profile found')
+            console.log(user)
+            res.send(user)
+        }
+    })
+    .patch(async (req, res) => {
+        // take edited profile data in request, compare to profile currently in database. 
+        // Take differences between the two and push the editedProfile data into the old profile. 
+        console.log('Patch request for /profile received')
+    })
+router.patch('/profile/image', async (req, res) => {
+    let user = await findUser(req.body.email)
+    if (user == null) {
+        console.error('user not found')
+        return;
+    }
+    user.displayImage = req.body.image;
+    user.save().then((savedUser) => {
+        res.status(200).send(savedUser);
+    }).catch((err) => {
+        console.error(err);
+        res.status(404).send(`User with email ${req.body.email} not found.`)
+    })
+    console.log(user.displayImage)
 })
 
 function checkPasswords(p1, p2) {
@@ -185,16 +204,7 @@ async function emailUnique(email) {
 }
 
 async function hashPassword(plainPassword) {
-    const saltRounds = 10;
     return await bcrypt.hash(plainPassword, 10);
-    // bcrypt.hash(plainPassword, saltRounds, function (err, hash) {
-    //     if (err) throw err;
-    //     // Store hash in your password DB.
-    //     console.log(hash)
-
-    //     return hash;
-    // });
-
 }
 
 async function createAccount(username, name, email, hashedPassword) {

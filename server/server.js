@@ -12,7 +12,9 @@ const app = express();
 
 // Configure middlewares
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+    limit: "1MB"
+}));
 
 app.set('view engine', 'html');
 
