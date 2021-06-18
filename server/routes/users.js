@@ -4,6 +4,9 @@ const mongodbPassword = process.env.MONGODB_PASSWORD
 const userSchema = require('../schema/userSchema.js')
 const User = mongoose.model("user", userSchema, "Users")
 
+//  CORS middleware setup
+const cors = require('cors');
+
 // jwt setup
 const jwt = require("jsonwebtoken")
 
@@ -33,6 +36,7 @@ async function findUser(email) {
         email
     })
 }
+router.options('/logout', cors())
 
 router.get('/', (req, res) => {
     res.send("You hit the /users route.")
@@ -56,28 +60,18 @@ router.route('/login')
         res.send("This is the login POST route")
     })
 router.post('/login/verify', async (req, res) => {
-    // emptyCollections()
-    /**
-     * Since we're using JWT for auth, we create a new JWT for the user once they log in. 
-     * Every time they access a resource using their account, we check the request header
-     * to make sure their JWT matches our records by decoding it with our access token secret.
-     */
-    // emptyCollections()
     console.log(req.body.email)
     console.log(req.body.password)
     // createUser(req.body.username, req.body.password)
-
     let userObject = await findUser(req.body.email)
-
     if (userObject != null) {
         // res.write("User was found in profiles database")
-        console.log("User found \n\n")
-
-        console.log(`Users plaintext password: ${req.body.password}`)
-        console.log(`Users hashed password: ${userObject.hashedPassword}`)
+        console.log("User found \n\n");
+        console.log(`Users plaintext password: ${req.body.password}`);
+        console.log(`Users hashed password: ${userObject.hashedPassword}`);
 
         // see if incoming plaintext password == hashedPassword in database
-        const passwordsMatch = await bcrypt.compare(req.body.password, userObject.hashedPassword)
+        const passwordsMatch = await bcrypt.compare(req.body.password, userObject.hashedPassword);
         if (passwordsMatch) {
             console.log(`Passwords match: ${passwordsMatch}`)
             // NOTE log user in with JWT
@@ -85,12 +79,9 @@ router.post('/login/verify', async (req, res) => {
             const accessTokenObject = {
                 accessToken: jwt.sign(JSON.stringify(userObject), process.env.ACCESS_TOKEN_SECRET)
             }
-
             res.status(214);
             res.statusMessage = "JWT Generated"
-            res.json(accessTokenObject)
-
-
+            res.json(accessTokenObject);
         } else {
             res.status(215);
             res.statusMessage = "Incorrect password"
@@ -100,7 +91,6 @@ router.post('/login/verify', async (req, res) => {
         res.status(216);
         res.send("Email not found.");
         console.log("User not found \n\n")
-
     }
 })
 router.delete('/logout', (req, res) => {
@@ -108,21 +98,21 @@ router.delete('/logout', (req, res) => {
     res.send("token destroyed")
 })
 router.post('/register', async (req, res) => {
-    let passwordsMatch = await checkPasswords(req.body.password, req.body.verifyPassword);
+    let passwordsMatch = checkPasswords(req.body.password, req.body.verifyPassword);
     let usernameIsAvailable = await usernameAvailable(req.body.username)
     let emailIsUnique = await emailUnique(req.body.email);
     let hashedPassword = await hashPassword(req.body.password)
 
     if (passwordsMatch && usernameIsAvailable && emailIsUnique && hashedPassword != undefined) {
         let newUser = await createAccount(req.body.username, req.body.name, req.body.email, hashedPassword);
-        console.log('User saved to database')
-        res.status(210).write("Account successfully created!")
+        console.log('User saved to database');
+        res.status(210).write("Account successfully created!");
     } else {
-        console.log('User not saved to database')
+        console.log('User not saved to database');
         if (!passwordsMatch) {
-            res.status(211).write("Passwords did not match.")
+            res.status(211).write("Passwords did  not match.");
         } else if (!usernameIsAvailable) {
-            res.status(212).write("Username was not available. ")
+            res.status(212).write("Username was not available. ");
         } else if (!emailIsUnique) {
             res.status(213).write("The email used for registration is already registered to an account. If this is you, please log in with your password.")
         }

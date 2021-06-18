@@ -2,7 +2,7 @@ import Vuex from 'vuex'
 import axios from 'axios'
 
 // dev url: http://localhost:9000
-// prod url: https://unsplash-clone-dh.herokuapp.com/
+// prod url: https://unsplash-clone-dh.herokuapp.com
 
 export default Vuex.createStore({
     state: {
@@ -33,7 +33,7 @@ export default Vuex.createStore({
             // get profile from database and update the vuex store profile with it
             return new Promise((resolve, reject) => {
                 // console.log(email)
-                axios.post("https://unsplash-clone-dh.herokuapp.com/users/profile", email)
+                axios.post("http://localhost:9000/users/profile", email)
                     // get profile info from mongodb from server
                     .then((res) => {
                         //user profile data received
@@ -48,7 +48,7 @@ export default Vuex.createStore({
         async updateProfile(context, editedProfile, email) {
             // this updates the whole profile. All parts.
             axios
-                .patch("https://unsplash-clone-dh.herokuapp.com/profile", profile)
+                .patch("http://localhost:9000/profile", profile)
                 .then((res) => {
                     console.log(res.data);
                 })
@@ -61,7 +61,7 @@ export default Vuex.createStore({
             // this updates the whole profiles image. Nothing else.
             return new Promise((resolve, reject) => {
 
-                axios.patch('https://unsplash-clone-dh.herokuapp.com/users/profile/image', data)
+                axios.patch('http://localhost:9000/users/profile/image', data)
                     .then((res) => {
                         context.dispatch('setProfile', {
                             email: data.email
@@ -80,7 +80,7 @@ export default Vuex.createStore({
         async retrieveToken(context, credentials) { // get token from server, store in localstorage
             return new Promise((resolve, reject) => {
                 axios
-                    .post("https://unsplash-clone-dh.herokuapp.com/users/login/verify", {
+                    .post("http://localhost:9000/users/login/verify", {
                         email: credentials.email,
                         password: credentials.password,
                     })
@@ -110,7 +110,7 @@ export default Vuex.createStore({
             if (context.getters.loggedIn) {
                 return new Promise((resolve, reject) => {
                     axios
-                        .delete("https://unsplash-clone-dh.herokuapp.com/users/logout")
+                        .delete("http://localhost:9000/users/logout")
                         .then((res) => {
                             localStorage.removeItem('accessToken')
                             localStorage.removeItem('email')

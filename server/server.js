@@ -12,6 +12,7 @@ const app = express();
 
 // Configure middlewares
 app.use(cors());
+// app.options('*', cors());
 app.use(express.json({
     limit: "1MB"
 }));
