@@ -10,7 +10,8 @@ const port = process.env.PORT || 9000;
 
 const app = express();
 
-// Add headers
+// cors middleware
+app.use(cors())
 
 // app.options('*', cors());
 app.use(express.json({
