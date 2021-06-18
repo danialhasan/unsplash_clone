@@ -13,11 +13,18 @@ const jwt = require("jsonwebtoken")
 const express = require('express');
 const router = express.Router();
 
-router.use(cors())
+// router.use(cors())
 
 // bcrypt setup 
 const bcrypt = require('bcrypt');
 
+router.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+
+    next()
+})
 //header setup
 // router.use(function (req, res, next) {
 
@@ -62,7 +69,7 @@ async function findUser(email) {
         console.log("findUser function failed in user.js on server")
     }
 }
-router.options('/logout', cors())
+// router.options('/logout', cors())
 
 router.get('/', (req, res) => {
     res.send("You hit the /users route.")
@@ -118,10 +125,6 @@ router.post('/login/verify', async (req, res) => {
         res.send("Email not found.");
         console.log("User not found \n\n")
     }
-})
-router.delete('/logout', (req, res) => {
-    console.log("token destroyed")
-    res.send("token destroyed")
 })
 router.post('/register', async (req, res) => {
     let passwordsMatch = checkPasswords(req.body.password, req.body.verifyPassword);

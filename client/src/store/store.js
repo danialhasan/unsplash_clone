@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import axios from 'axios'
 
 // dev url: http://localhost:9000
-// prod url: https://unsplash-clone-dh.herokuapp.com
+// prod url: http://localhost:9000
 
 export default Vuex.createStore({
     state: {
@@ -35,7 +35,7 @@ export default Vuex.createStore({
             // get profile from database and update the vuex store profile with it
             return new Promise((resolve, reject) => {
                 // console.log(email)
-                axios.post("https://unsplash-clone-dh.herokuapp.com/users/profile", email)
+                axios.post("http://localhost:9000/users/profile", email)
                     // get profile info from mongodb from server
                     .then((res) => {
                         //user profile data received
@@ -50,7 +50,7 @@ export default Vuex.createStore({
         async updateProfile(context, editedProfile, email) {
             // this updates the whole profile. All parts.
             axios
-                .patch("https://unsplash-clone-dh.herokuapp.com/profile", profile)
+                .patch("http://localhost:9000/profile", profile)
                 .then((res) => {
                     console.log(res.data);
                 })
@@ -63,7 +63,7 @@ export default Vuex.createStore({
             // this updates the whole profiles image. Nothing else.
             return new Promise((resolve, reject) => {
 
-                axios.patch('https://unsplash-clone-dh.herokuapp.com/users/profile/image', data)
+                axios.patch('http://localhost:9000/users/profile/image', data)
                     .then((res) => {
                         context.dispatch('setProfile', {
                             email: data.email
@@ -82,7 +82,7 @@ export default Vuex.createStore({
         async retrieveToken(context, credentials) { // get token from server, store in localstorage
             return new Promise((resolve, reject) => {
                 axios
-                    .post("https://unsplash-clone-dh.herokuapp.com/users/login/verify", {
+                    .post("http://localhost:9000/users/login/verify", {
                         email: credentials.email,
                         password: credentials.password,
                     })
@@ -108,23 +108,19 @@ export default Vuex.createStore({
             })
         },
         destroyToken(context) { // log out
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + context.state.token
             if (context.getters.loggedIn) {
                 return new Promise((resolve, reject) => {
-                    axios
-                        .delete("https://unsplash-clone-dh.herokuapp.com/users/logout")
-                        .then((res) => {
-                            localStorage.removeItem('accessToken')
-                            localStorage.removeItem('email')
-                            context.commit('destroyToken')
-                            resolve(res)
-                        })
-                        .catch((error) => {
-                            localStorage.removeItem('accessToken')
-                            context.commit('destroyToken')
-
-                            reject(error)
-                        })
+                    try {
+                        localStorage.removeItem('accessToken')
+                        localStorage.removeItem('email')
+                        context.commit('destroyToken')
+                        resolve(res)
+                    } catch {
+                        localStorage.removeItem('accessToken')
+                        localStorage.removeItem('email')
+                        context.commit('destroyToken')
+                        reject("destroyToken failed for some reason, but accessToken and email should still be deleted, and accessToken in vuex state should be null.")
+                    }
                 })
             }
         }
