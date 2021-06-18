@@ -1,7 +1,9 @@
+// FIXME: MONGODB IS CURRENTLY ALLOWING ALL INBOUND CONNECTIONS. ANYONE WITH PW CAN VIEW DATABASE.
+
 import Vuex from 'vuex'
 import axios from 'axios'
 
-// dev url: https://unsplash-clone-dh.herokuapp.com
+// dev url: http://localhost:9000
 // prod url: https://unsplash-clone-dh.herokuapp.com
 
 export default Vuex.createStore({

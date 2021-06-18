@@ -11,7 +11,10 @@ const port = process.env.PORT || 9000;
 const app = express();
 
 // Configure middlewares
-app.use(cors());
+app.use(cors({
+    origin: 'https://unsplash-clone-dh.netlify.app'
+    //origin: 'http://localhost:9000/'
+}));
 // app.options('*', cors());
 app.use(express.json({
     limit: "1MB"
