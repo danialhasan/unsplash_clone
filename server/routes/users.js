@@ -32,9 +32,13 @@ async function findUser(email) {
     /**
      * findOne resolves to the document (if it exists), or null (if the document does not exist)
      */
-    return await User.findOne({
-        email
-    })
+    try {
+        return await User.findOne({
+            email
+        })
+    } catch {
+        console.log("findUser function failed in user.js on server")
+    }
 }
 router.options('/logout', cors())
 
