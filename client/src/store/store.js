@@ -47,8 +47,27 @@ export default Vuex.createStore({
                     })
             })
         },
+        async registerAccount(context, newAccount) {
+            return new Promise((resolve, reject) => {
+                axios
+                    .post("https://unsplash-clone-dh.herokuapp.com/users/register", {
+                        name: newAccount.name,
+                        email: newAccount.email,
+                        username: newAccount.username,
+                        password: newAccount.password,
+                        verifyPassword: newAccount.verifyPassword,
+                    })
+                    .then((res) => {
+                        resolve(res)
+                    }).catch((err) => {
+                        console.error(err)
+                        reject(err)
+                    })
+            })
+        },
         async updateProfile(context, editedProfile, email) {
             // this updates the whole profile. All parts.
+            // FIXME wip
             axios
                 .patch("https://unsplash-clone-dh.herokuapp.com/profile", profile)
                 .then((res) => {
@@ -62,7 +81,6 @@ export default Vuex.createStore({
         async updateProfileDisplayImage(context, data) {
             // this updates the whole profiles image. Nothing else.
             return new Promise((resolve, reject) => {
-
                 axios.patch('https://unsplash-clone-dh.herokuapp.com/users/profile/image', data)
                     .then((res) => {
                         context.dispatch('setProfile', {

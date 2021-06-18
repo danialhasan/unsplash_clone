@@ -71,7 +71,7 @@ export default {
         return true;
       }
     },
-    submitRegisterFormContents() {
+    async submitRegisterFormContents() {
       let name = document.getElementById("name_input");
       let email = document.getElementById("email_input");
       let username = document.getElementById("username_input");
@@ -82,9 +82,9 @@ export default {
         throw new Error();
       }
       try {
-        console.log(`Email: ${username.value}, password:${password.value}`);
-        axios
-          .post("http://localhost:9000/users/register", {
+        //
+        this.$store
+          .dispatch("registerAccount", {
             name: name.value,
             email: email.value,
             username: username.value,
@@ -160,6 +160,7 @@ export default {
           .catch((error) => {
             console.error(error);
           });
+        //
       } catch (error) {}
     },
     preventSpaces(key) {
