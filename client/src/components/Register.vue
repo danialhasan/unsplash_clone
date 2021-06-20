@@ -1,5 +1,4 @@
 <script>
-import axios from "axios";
 import FlashMessage from "@/components/FlashMessage.vue";
 export default {
   name: "Register",

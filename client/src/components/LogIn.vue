@@ -1,5 +1,4 @@
 <script>
-import axios from "axios";
 import { LockClosedIcon } from "@heroicons/vue/solid";
 import FlashMessage from "@/components/FlashMessage.vue";
 

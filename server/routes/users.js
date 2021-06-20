@@ -19,14 +19,13 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 
 router.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
-    // res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
     next()
 })
-
 
 // connecting to MongoDB with Mongoose
 const connectionString = `mongodb+srv://dbAdmin:${process.env.MONGODB_PASSWORD}@cluster0.wcdjk.mongodb.net/UnsplashClone?retryWrites=true&w=majority`;
@@ -134,7 +133,8 @@ router.post('/register', async (req, res) => {
 router.route('/profile')
     .post(async (req, res) => {
         // get profile data from mongodb, send to client to update vuex store
-        console.log(req.body.email)
+        console.log("Email received:")
+        console.log(req.body)
         let user = await findUser(req.body.email);
         if (user == null) {
             res.status(217).send('User not found')
@@ -145,10 +145,50 @@ router.route('/profile')
         }
     })
     .patch(async (req, res) => {
-        // take edited profile data in request, compare to profile currently in database. 
-        // Take differences between the two and push the editedProfile data into the old profile. 
-        console.log(req.body)
-        res.send("Patch request received!")
+        /**
+         * This updates the profile in the database after performing 2 checks: 
+         *  - The editedUsername given doesn't exist in the database yet
+         *  - The editedEmail given doesn't exist in the database yet
+         */
+        const editedProfile = req.body.profile
+        const oldEmail = req.body.oldEmail
+        // console.log(oldEmail);
+
+        const emailExists = await User.find({
+            email: editedProfile.email
+        }, (err, result) => {
+            if (err) throw err;
+            console.log(result)
+        })
+        /**
+                I need to make sure that when the email is untouched and therefore exists in the database,
+                it doesn't trigger the 'email exists' function
+         */
+        const usernameExists = await User.findOne({
+            username: editedProfile.username
+        })
+        /*
+        if (emailExists) {
+            res.send('Email is taken.');
+            return;
+        } else if (usernameExists) {
+            res.send('Username is taken.')
+            return;
+        }
+
+        let user = await findUser(oldEmail);
+        if (user == null) {
+            console.log('user not found')
+            return
+        }
+        console.log(user)
+        user.username = editedProfile.username
+        user.name = editedProfile.name
+        user.bio = editedProfile.bio
+        user.email = editedProfile.email
+        user.save()
+        */
+        res.send("User saved!")
     })
 router.patch('/profile/image', async (req, res) => {
     let user = await findUser(req.body.email)
@@ -163,7 +203,6 @@ router.patch('/profile/image', async (req, res) => {
         console.error(err);
         res.status(404).send(`User with email ${req.body.email} not found.`)
     })
-    console.log(user.displayImage)
 })
 
 function checkPasswords(p1, p2) {

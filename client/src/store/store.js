@@ -34,7 +34,7 @@ export default Vuex.createStore({
         async setProfile(context, email) {
             // get profile from database and update the vuex store profile with it
             return new Promise((resolve, reject) => {
-                // console.log(email)
+                console.log(email)
                 axios.post("https://unsplash-clone-dh.herokuapp.com/users/profile", email)
                     // get profile info from mongodb from server
                     .then((res) => {
@@ -65,18 +65,23 @@ export default Vuex.createStore({
                     })
             })
         },
-        async updateProfile(context, editedProfile, email) {
-            // this updates the whole profile. All parts.
-            // FIXME wip
-            axios
-                .patch("https://unsplash-clone-dh.herokuapp.com/profile", profile)
-                .then((res) => {
-                    console.log(res.data);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    throw err;
-                });
+        async updateProfile(context, editedProfile) {
+            // make server request to find user with the email specified, then change the details to the ones given in 
+            // editedProfile. NOTE: Make sure to change localstorage email to new updated email once database is updated.
+            console.log(editedProfile)
+            return new Promise((resolve, reject) => {
+                axios
+                    .patch("https://unsplash-clone-dh.herokuapp.com/users/profile", editedProfile)
+                    .then((res) => {
+                        console.log(res.data);
+                        resolve(res) // return success message to component
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        reject(err) // return error message to component
+                        throw err;
+                    })
+            })
         },
         async updateProfileDisplayImage(context, data) {
             // this updates the whole profiles image. Nothing else.

@@ -21,9 +21,9 @@ export default {
     "
   >
     <ul class="flex flex-col text-sm text-center">
-      <li class="w-full py-3 border-b border-gray-300">
-        <router-link :to="{ name: 'EditProfile' }"> Edit profile </router-link>
-      </li>
+      <router-link :to="{ name: 'EditProfile' }">
+        <li class="w-full py-3 border-b border-gray-300">Edit profile</li>
+      </router-link>
       <!-- <li class="w-full py-3 border-b border-gray-300">Setting item 4</li> -->
       <li
         class="w-full py-3 border-b rounded-2xl border-gray-300"
