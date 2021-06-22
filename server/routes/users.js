@@ -19,8 +19,8 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 
 router.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
-    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    // res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
@@ -152,27 +152,54 @@ router.route('/profile')
          */
         const editedProfile = req.body.profile
         const oldEmail = req.body.oldEmail
-        // console.log(oldEmail);
+        // console.log(`Edited Email: ${editedProfile.email}`)
+        // console.log(`Old email: ${oldEmail}`);
 
-        const emailExists = await User.find({
-            email: editedProfile.email
-        }, (err, result) => {
-            if (err) throw err;
-            console.log(result)
-        })
+        const emailExists = async () => {
+            return new Promise((resolve, reject) => {
+                if (editedProfile.email === oldEmail) {
+                    // console.log(`${editedProfile.email} and ${oldEmail} are the same!`)
+                    resolve(false)
+                } else {
+                    // console.log(`${editedProfile.email} and ${oldEmail} are different! Checking to see if ${editedProfile.email} exists in the database...`)
+                    User.find({
+                        email: editedProfile.email
+                    }, (err, result) => {
+                        if (err) reject(err);
+                        // console.log('Result type:')
+                        // console.log(typeof result)
+                        if (Object.keys(result).length === 0) {
+                            // console.log(`Length of document in database with email ${editedProfile.email} was 0; therefore no account with that email exists. Resolving false. `)
+                            resolve(false)
+                        } else {
+                            // console.log(`Length of document in database with email ${editedProfile.email} was not 0; therefore an account with that email exists. Resolving true. `)
+                            resolve(true)
+                        }
+                        resolve(result)
+                    })
+                }
+            })
+
+        }
         /**
-                I need to make sure that when the email is untouched and therefore exists in the database,
-                it doesn't trigger the 'email exists' function
+            I need to make sure that when the email is untouched and therefore exists in the database,
+            it doesn't trigger the 'email exists' function
          */
+        console.log(emailExists == true)
         const usernameExists = await User.findOne({
             username: editedProfile.username
         })
-        /*
+
         if (emailExists) {
-            res.send('Email is taken.');
+            let test = await emailExists()
+            console.log("emailExists:");
+            console.log(test);
+            res.send("email exists")
             return;
-        } else if (usernameExists) {
+        } else if (await usernameExists) {
             res.send('Username is taken.')
+            console.log("usernameExists:")
+            console.log(usernameExists)
             return;
         }
 
@@ -181,14 +208,17 @@ router.route('/profile')
             console.log('user not found')
             return
         }
-        console.log(user)
+        // console.log(user)
         user.username = editedProfile.username
         user.name = editedProfile.name
         user.bio = editedProfile.bio
         user.email = editedProfile.email
-        user.save()
-        */
-        res.send("User saved!")
+        user.save().then((savedUser) => {
+            res.send(savedUser)
+        })
+
+        // res.write("User saved!")
+        res.send(user.email)
     })
 router.patch('/profile/image', async (req, res) => {
     let user = await findUser(req.body.email)
