@@ -67,12 +67,11 @@ export default Vuex.createStore({
         async updateProfile(context, editedProfile) {
             // make server request to find user with the email specified, then change the details to the ones given in 
             // editedProfile. NOTE: Make sure to change localstorage email to new updated email once database is updated.
-            console.log(editedProfile)
+            // console.log(editedProfile)
             return new Promise((resolve, reject) => {
                 axios
-                    .patch("http://localhost:9000/users/profile", editedProfile )
+                    .patch("http://localhost:9000/users/profile", editedProfile)
                     .then((res) => {
-                        console.log(res.data);
                         resolve(res) // return success message to component
                     })
                     .catch((err) => {

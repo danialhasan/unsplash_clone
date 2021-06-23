@@ -110,7 +110,7 @@ router.post('/login/verify', async (req, res) => {
 router.post('/register', async (req, res) => {
     let passwordsMatch = checkPasswords(req.body.password, req.body.verifyPassword);
     let usernameIsAvailable = await usernameAvailable(req.body.username)
-    let emailIsUnique = await emailUnique(req.body.email);
+    let emailIsUnique = await emailAvailable(req.body.email);
     let hashedPassword = await hashPassword(req.body.password)
 
     if (passwordsMatch && usernameIsAvailable && emailIsUnique && hashedPassword != undefined) {
@@ -152,54 +152,82 @@ router.route('/profile')
          */
         const editedProfile = req.body.profile
         const oldEmail = req.body.oldEmail
+        const oldUsername = req.body.oldUsername
         // console.log(`Edited Email: ${editedProfile.email}`)
         // console.log(`Old email: ${oldEmail}`);
+        // console.log('editedProfile:')
+        // console.log(editedProfile)
+        console.log(`oldEmail:${oldEmail}`)
+        console.log(`oldUsername:${oldUsername}`)
+        /*
+                const emailExists = async () => {
+                   
+                    if (oldEmail === editedProfile.email) {
+                        console.log('this is a test console.log')
 
-        const emailExists = async () => {
-            return new Promise((resolve, reject) => {
-                if (editedProfile.email === oldEmail) {
-                    // console.log(`${editedProfile.email} and ${oldEmail} are the same!`)
-                    resolve(false)
-                } else {
-                    // console.log(`${editedProfile.email} and ${oldEmail} are different! Checking to see if ${editedProfile.email} exists in the database...`)
-                    User.find({
-                        email: editedProfile.email
-                    }, (err, result) => {
-                        if (err) reject(err);
-                        // console.log('Result type:')
-                        // console.log(typeof result)
-                        if (Object.keys(result).length === 0) {
-                            // console.log(`Length of document in database with email ${editedProfile.email} was 0; therefore no account with that email exists. Resolving false. `)
-                            resolve(false)
-                        } else {
-                            // console.log(`Length of document in database with email ${editedProfile.email} was not 0; therefore an account with that email exists. Resolving true. `)
-                            resolve(true)
-                        }
-                        resolve(result)
-                    })
-                }
-            })
+                        return false
+                        // email was not changed. Since it was not changed, it was reserved
+                        // by the account during registration. 100% guarantee there is not an
+                        // identical email in the database.
+                    } else {
+                        User.findOne({
+                            email: editedProfile.email
+                        }, (err, doc) => {
+                            if (err) throw err;
+                            console.log("doc:")
+                            console.log(doc)
+                            if (doc === null || doc === undefined) {
+                                // no docs with that email exist. 
+                                console.log('this is a test console.log')
 
-        }
+                                return false
+                            } else {
+                                console.log(`Email ${editedProfile.email} exists in doc:`)
+                                console.log(doc)
+                                console.log('this is a test console.log')
+                                // a doc with that email exists.
+                                return true
+                            }
+                        })
+
+                    }
+
+                };
+                */
         /**
             I need to make sure that when the email is untouched and therefore exists in the database,
             it doesn't trigger the 'email exists' function
          */
-        console.log(emailExists == true)
-        const usernameExists = await User.findOne({
-            username: editedProfile.username
-        })
+        // const usernameExists = async () => {
+        //     return new Promise((resolve, reject) => {
+        //         console.log('test')
+        //         User.exists({
+        //             username: editedProfile.username
+        //         }, (err, res) => {
+        //             if (err) reject(err);
+        //             resolve(res)
+        //             console.log(res)
+        //         })
+        //     })
+        // }
 
-        if (emailExists) {
-            let test = await emailExists()
-            console.log("emailExists:");
-            console.log(test);
-            res.send("email exists")
+        /*if (!emailExists) {
+            // let test = await emailExists()
+            // console.log("emailExists:");
+            // console.log(test);
+            res.status(218).send("Email exists")
             return;
-        } else if (await usernameExists) {
-            res.send('Username is taken.')
-            console.log("usernameExists:")
-            console.log(usernameExists)
+        } else */
+        let usernameIsAvailable = await usernameAvailable(editedProfile.username)
+        let emailIsUnique = await emailAvailable(editedProfile.email);
+
+        if (!emailIsUnique) {
+            res.status(218).send("Email is taken.")
+            console.log(`Email ${editedProfile.email} was taken.`);
+            return;
+        } else if (!usernameIsAvailable) {
+            res.status(219).send('Username is taken.')
+            console.log(`Email ${editedProfile.username} was taken.`)
             return;
         }
 
@@ -208,17 +236,18 @@ router.route('/profile')
             console.log('user not found')
             return
         }
-        // console.log(user)
         user.username = editedProfile.username
         user.name = editedProfile.name
         user.bio = editedProfile.bio
         user.email = editedProfile.email
         user.save().then((savedUser) => {
+            res.status(220);
+            res.statusMessage = 'Email saved successfully';
             res.send(savedUser)
         })
 
         // res.write("User saved!")
-        res.send(user.email)
+        // res.send(user.email)
     })
 router.patch('/profile/image', async (req, res) => {
     let user = await findUser(req.body.email)
@@ -260,7 +289,7 @@ async function usernameAvailable(username) {
     }
 }
 
-async function emailUnique(email) {
+async function emailAvailable(email) {
     // checks database to see if email has been registered before.
     try {
         let emailIsUnique = await User.exists({

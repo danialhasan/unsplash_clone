@@ -4,7 +4,7 @@ import FlashMessage from "@/components/FlashMessage.vue";
 export default {
   data() {
     return {
-      profile: {
+      editedProfile: {
         name: null,
         username: null,
         bio: null,
@@ -30,15 +30,63 @@ export default {
       }, 5000);
     },
     saveChanges() {
-      let profile = this.profile; // save profile to this method
+      let profile = this.editedProfile; // save profile to this method
       this.$store
         .dispatch("updateProfile", {
           profile,
           oldEmail: localStorage.getItem("email"),
-        }) // send saved profile to be updated in database
+          oldUsername: this.$store.state.profile.username,
+        })
         .then((res) => {
           console.log(res); // return successful flash message
-          // localStorage.setItem('email', /*new email */)
+          switch (res.status) {
+            case 218:
+              console.log("Email is taken in database.");
+              this.flashMessageData = {
+                role: "alert",
+                backgroundColor: "bg-red-100",
+                accentColor: "border-red-500",
+                textColor: "text-red-700",
+                title: res.data,
+                description:
+                  "The new email you chose has already been registered to another account. Please choose another email address, or log into that account.",
+              };
+              this.showFlashMessage = true;
+              this.deleteFlashMessage();
+              break;
+            case 219:
+              console.log("Username is taken in database.");
+              this.flashMessageData = {
+                role: "alert",
+                backgroundColor: "bg-red-100",
+                accentColor: "border-red-500",
+                textColor: "text-red-700",
+                title: res.data,
+                description:
+                  "The new username you chose has already been registered to another account. Please choose another username, or log into that account.",
+              };
+              this.showFlashMessage = true;
+              this.deleteFlashMessage();
+              break;
+            case 220:
+              console.log("Change was successful.");
+              console.log(res);
+              localStorage.setItem("email", res.data.email);
+              this.flashMessageData = {
+                role: "success",
+                backgroundColor: "bg-green-100",
+                accentColor: "border-green-500",
+                textColor: "text-green-700",
+                title: res.statusText,
+                description: "Account settings saved successfully.",
+              };
+              this.showFlashMessage = true;
+              this.deleteFlashMessage();
+              break;
+            default:
+              console.log("status code received was not 218/219/220.");
+              break;
+          }
         })
         .catch((error) => {
           console.error(error); // return error flash message
@@ -57,10 +105,10 @@ export default {
       this.$store
         .dispatch("setProfile", { email })
         .then((res) => {
-          this.profile.username = res.username;
-          this.profile.name = res.name;
-          this.profile.bio = res.bio;
-          this.profile.email = res.email;
+          this.editedProfile.username = res.username;
+          this.editedProfile.name = res.name;
+          this.editedProfile.bio = res.bio;
+          this.editedProfile.email = res.email;
         })
         .catch((error) => {
           console.error(error);
@@ -78,10 +126,10 @@ export default {
         });
     } else {
       let profile = this.$store.getters.getProfile;
-      this.profile.name = profile.name;
-      this.profile.email = profile.email;
-      this.profile.bio = profile.bio;
-      this.profile.username = profile.username;
+      this.editedProfile.name = profile.name;
+      this.editedProfile.email = profile.email;
+      this.editedProfile.bio = profile.bio;
+      this.editedProfile.username = profile.username;
     }
   },
 };
@@ -101,7 +149,7 @@ export default {
           <input
             type="text"
             name="name"
-            v-model="this.profile.name"
+            v-model="this.editedProfile.name"
             class="bg-gray-200 rounded-lg"
             placeholder="name here"
           />
@@ -111,7 +159,7 @@ export default {
           <input
             type="text"
             name="email"
-            v-model="this.profile.email"
+            v-model="this.editedProfile.email"
             class="bg-gray-200 rounded-lg"
             placeholder="email here"
           />
@@ -121,7 +169,7 @@ export default {
           <input
             type="text"
             name="username"
-            v-model="this.profile.username"
+            v-model="this.editedProfile.username"
             class="bg-gray-200 rounded-lg"
             placeholder="username here"
           />
@@ -131,7 +179,7 @@ export default {
           <textarea
             type="text"
             name="bio"
-            v-model="this.profile.bio"
+            v-model="this.editedProfile.bio"
             class="bg-gray-200 rounded-lg min-h-[100px]"
             placeholder="Bio here"
           ></textarea>
