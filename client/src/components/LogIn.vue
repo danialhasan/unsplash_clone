@@ -101,6 +101,7 @@ export default {
               };
               this.showFlashMessage = true;
               this.deleteFlashMessage();
+              this.loading = false;
               break;
             case 216:
               console.log("Email was not found in database (flash message)");
@@ -115,6 +116,7 @@ export default {
               };
               this.showFlashMessage = true;
               this.deleteFlashMessage();
+              this.loading = false;
             default:
               break;
           }

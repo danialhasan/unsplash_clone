@@ -145,90 +145,29 @@ router.route('/profile')
         }
     })
     .patch(async (req, res) => {
-        /**
-         * This updates the profile in the database after performing 2 checks: 
-         *  - The editedUsername given doesn't exist in the database yet
-         *  - The editedEmail given doesn't exist in the database yet
-         */
+
         const editedProfile = req.body.profile
         const oldEmail = req.body.oldEmail
         const oldUsername = req.body.oldUsername
-        // console.log(`Edited Email: ${editedProfile.email}`)
-        // console.log(`Old email: ${oldEmail}`);
-        // console.log('editedProfile:')
-        // console.log(editedProfile)
+
         console.log(`oldEmail:${oldEmail}`)
         console.log(`oldUsername:${oldUsername}`)
-        /*
-                const emailExists = async () => {
-                   
-                    if (oldEmail === editedProfile.email) {
-                        console.log('this is a test console.log')
 
-                        return false
-                        // email was not changed. Since it was not changed, it was reserved
-                        // by the account during registration. 100% guarantee there is not an
-                        // identical email in the database.
-                    } else {
-                        User.findOne({
-                            email: editedProfile.email
-                        }, (err, doc) => {
-                            if (err) throw err;
-                            console.log("doc:")
-                            console.log(doc)
-                            if (doc === null || doc === undefined) {
-                                // no docs with that email exist. 
-                                console.log('this is a test console.log')
-
-                                return false
-                            } else {
-                                console.log(`Email ${editedProfile.email} exists in doc:`)
-                                console.log(doc)
-                                console.log('this is a test console.log')
-                                // a doc with that email exists.
-                                return true
-                            }
-                        })
-
-                    }
-
-                };
-                */
-        /**
-            I need to make sure that when the email is untouched and therefore exists in the database,
-            it doesn't trigger the 'email exists' function
-         */
-        // const usernameExists = async () => {
-        //     return new Promise((resolve, reject) => {
-        //         console.log('test')
-        //         User.exists({
-        //             username: editedProfile.username
-        //         }, (err, res) => {
-        //             if (err) reject(err);
-        //             resolve(res)
-        //             console.log(res)
-        //         })
-        //     })
-        // }
-
-        /*if (!emailExists) {
-            // let test = await emailExists()
-            // console.log("emailExists:");
-            // console.log(test);
-            res.status(218).send("Email exists")
-            return;
-        } else */
         let usernameIsAvailable = await usernameAvailable(editedProfile.username)
         let emailIsUnique = await emailAvailable(editedProfile.email);
 
-        if (!emailIsUnique) {
-            res.status(218).send("Email is taken.")
-            console.log(`Email ${editedProfile.email} was taken.`);
-            return;
-        } else if (!usernameIsAvailable) {
-            res.status(219).send('Username is taken.')
-            console.log(`Email ${editedProfile.username} was taken.`)
-            return;
+        if (oldEmail !== editedProfile.email) {
+            if (!emailIsUnique) {
+                res.status(218).send("Email is taken.")
+                console.log(`Email ${editedProfile.email} was taken.`);
+                return;
+            }
+        } else if (oldUsername !== editedProfile.username) {
+            if (!usernameIsAvailable) {
+                res.status(219).send('Username is taken.')
+                console.log(`Email ${editedProfile.username} was taken.`)
+                return;
+            }
         }
 
         let user = await findUser(oldEmail);
