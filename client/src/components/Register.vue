@@ -85,8 +85,8 @@ export default {
         this.$store
           .dispatch("registerAccount", {
             name: name.value,
-            email: email.value,
-            username: username.value,
+            email: email.value.toLowerCase(),
+            username: username.value.toLowerCase(),
             password: password.value,
             verifyPassword: verifyPassword.value,
           })

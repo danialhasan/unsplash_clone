@@ -198,10 +198,10 @@ export default {
       if (username.length > 15) {
         let smallString = username.substring(0, 12);
         let result = smallString.concat("...");
-        usernameElement.textContent = result;
+        usernameElement.textContent = `@${result}`;
       } else {
         // console.log(`Username is short enough: ${username}`);
-        usernameElement.textContent = username;
+        usernameElement.textContent = `@${username}`;
         return username;
       }
     },

@@ -31,6 +31,8 @@ export default {
     },
     saveChanges() {
       let profile = this.editedProfile; // save profile to this method
+      profile.username = profile.username.toLowerCase();
+      profile.email = profile.email.toLowerCase();
       this.$store
         .dispatch("updateProfile", {
           profile,
@@ -71,7 +73,7 @@ export default {
             case 220:
               console.log("Change was successful.");
               console.log(res);
-              localStorage.setItem("email", res.data.email);
+              localStorage.setItem("email", res.data.email.toLowerCase());
               this.flashMessageData = {
                 role: "success",
                 backgroundColor: "bg-green-100",
@@ -85,6 +87,17 @@ export default {
               break;
             default:
               console.log("status code received was not 218/219/220.");
+              this.flashMessageData = {
+                role: "warning",
+                backgroundColor: "bg-yellow-100",
+                accentColor: "border-yellow-500",
+                textColor: "text-yellow-700",
+                title: "There was a problem",
+                description:
+                  "Something happened on our end. Please refresh the page and try again.",
+              };
+              this.showFlashMessage = true;
+              this.deleteFlashMessage();
               break;
           }
         })
