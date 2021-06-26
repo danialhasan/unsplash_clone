@@ -101,7 +101,8 @@ export default {
 
       input.addEventListener("change", () => {
         let imageSize = input.files[0].size;
-        if (imageSize > 1e6) {
+        console.log(`File size: ${imageSize / 1e6}MB`);
+        if (imageSize > 5e6) {
           // the image chosen by the user is too big
           console.error("Image file is too big!");
           console.error(`File size: ${imageSize / 1e6}MB`);
@@ -170,7 +171,7 @@ export default {
                 textColor: "text-red-700",
                 title: "We couldn't update your display image",
                 description:
-                  "There was an issue updating your display image. Please refresh the page and try again.",
+                  "There was an issue updating your display image. Please refresh the page and try again, or try a smaller file.",
               };
               this.deleteFlashMessage();
 
@@ -214,46 +215,6 @@ export default {
           this.displayContent[contentType] = false;
         }
       }
-    },
-    comments() {
-      /**
-       * Since editing the image and editing the whole profile are two different processes, I'm
-       * going to use seperate actions for them.
-       *
-       * for changing the current displayImage, make the following action:
-       * updateProfileDisplayImage: This vuex action takes an image as a parameter (which will have been given from the user)
-       * and makes a patch request to the server with the image and profile email. The server receives the image, locates the
-       * user using the email provided and updates that profiles display image. It then returns a successful status code. Upon
-       * receiving the successful status code, the client then dispatches the setProfile action to update the users profile on
-       * the front end.
-       *
-       * for editing the whole profile, make the following action:
-       * updateProfile: This vuex action is run on the editProfile page after changes are made and a save
-       * is requested. A patch request is made to the server endpoint '/profile' with the profile's email, which updates the database.
-       * It returns a status code of success or failure. On success, it runs the setProfile vuex action, which sends
-       * a request to the server to return the database contents of the profile specified by an email.
-       *
-       * What parameter should updateProfile take? It should take the updated profile contents right? How
-       * do you enforce consistency in what gets sent? Do you just send the entire profile?
-       *
-       * I might just make a data property that is essentially the profile but changeable. The normal profile
-       * gets its data from the store. This new editedProfile would initially be null (no changes), then would fill up with the
-       * changes that the user makes. It would be v-model'd by the inputs of the edit, and would serve as what gets sent as the
-       * parameter for the updateProfile action. On the server or the action itself, the editedProfile object would be looped
-       * through. If a property is null, it is not updated. If it isn't null, it would be updated.
-       * Alternatively, I can send
-       * the editedProfile object but instead of properties starting at null and then becoming filled through edits, I can just
-       * make it a duplicate of the profile that is currently unedited (accessed in this components data property). On save
-       * (submission), I can compare the differences between the edited profile and the unedited profile. Properties that match
-       * are left behind. Properties of the edited profile that conflict with properties of the old unedited profile are sent
-       * as parameters to the updateProfile action (as an object with keys that match the keys of the profile in the database.
-       * That in turn sends the parameters to the server
-       *
-       * I can send it to the server, and the server can pull the unedited (old) profile from the database and compare changes.
-       *
-       * Maybe I should leave the
-       * updateProfile action for the editProfile component.
-       */
     },
     settings() {
       console.log("Settings clicked");

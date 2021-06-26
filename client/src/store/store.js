@@ -2,6 +2,9 @@
 
 import Vuex from 'vuex'
 import axios from 'axios'
+import {
+    callWithErrorHandling
+} from 'vue';
 
 // dev url: http://localhost:9000
 // prod url: https://unsplash-clone-dh.herokuapp.com
@@ -31,6 +34,19 @@ export default Vuex.createStore({
         }
     },
     actions: {
+        async postImage() {
+            console.log("postImage action dispatched!");
+            return new Promise((resolve, reject) => {
+                axios.get('http://localhost:9000/api/image')
+                    .then((res) => {
+                        console.log(res)
+                        resolve(res)
+                    }).catch((error) => {
+                        reject(error)
+                        throw error;
+                    })
+            })
+        },
         async setProfile(context, email) {
             // get profile from database and update the vuex store profile with it
             return new Promise((resolve, reject) => {
