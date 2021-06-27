@@ -1,5 +1,4 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/9df02d50-cf56-4dfc-8a23-92a25064514d/deploy-status)](https://app.netlify.com/sites/unsplash-clone-dh/deploys)
-![Heroku](https://pyheroku-badge.herokuapp.com/?app=unsplash-clone-dh&style=flat)
 
 # Unsplash Clone
 
