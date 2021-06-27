@@ -17,6 +17,9 @@ To run this project, you will need to add the following environment variables to
 
 `REFRESH_TOKEN_SECRET`
 
+`aws_access_key_id`
+
+`aws_secret_access_key`
   
 ## Features
 
