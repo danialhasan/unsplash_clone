@@ -2,9 +2,6 @@
 
 import Vuex from 'vuex'
 import axios from 'axios'
-import {
-    callWithErrorHandling
-} from 'vue';
 
 // dev url: http://localhost:9000
 // prod url: https://unsplash-clone-dh.herokuapp.com
@@ -34,10 +31,12 @@ export default Vuex.createStore({
         }
     },
     actions: {
-        async postImage() {
+        async postImage(context, imageParams) {
             console.log("postImage action dispatched!");
             return new Promise((resolve, reject) => {
-                axios.get('http://localhost:9000/api/image')
+                axios.post('http://localhost:9000/api/image', {
+                        imageParams
+                    })
                     .then((res) => {
                         console.log(res)
                         resolve(res)

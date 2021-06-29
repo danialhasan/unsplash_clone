@@ -6,6 +6,7 @@ import LogOut from '@/components/LogOut.vue'
 import Register from '@/components/Register.vue'
 import Profile from '@/views/Profile.vue'
 import EditProfile from '@/views/EditProfile.vue'
+import PostImage from "@/components/PostImage.vue"
 
 /** @type {import('vue-router').RouterOptions['routes']} */
 export const routes = [{
@@ -57,8 +58,16 @@ export const routes = [{
     }
   },
   {
+    name: "PostImage",
+    path: '/post',
+    component: PostImage,
+    meta: {
+      requiresAuth: true
+    }
+  }, {
     name: "NotFound",
     path: '/:path(.*)',
     component: NotFound
   },
+
 ]
