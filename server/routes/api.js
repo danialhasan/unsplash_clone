@@ -85,9 +85,9 @@ async function deleteBucket() {}
 
 async function interactWithS3(bucketParams) {
   const objectsInBucket = await s3Client.send(new ListObjectsCommand(bucketParams));
-  // console.log('objectsInBucket:')
-  // console.log(objectsInBucket.Contents)
-  if (objectsInBucket.Contents.length > 0) {
+  console.log('objectsInBucket:')
+  console.log(objectsInBucket.Contents)
+  if (objectsInBucket.Contents.length > 0 || objectsInBucket.Contents === undefined) {
     console.log(`Bucket ${bucketParams.Bucket} is not empty`)
     emptyBucket(bucketParams).then(() => {
       console.log('Bucket emptied!')

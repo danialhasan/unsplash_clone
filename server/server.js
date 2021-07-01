@@ -16,7 +16,7 @@ const app = express();
 
 // app.options('*', cors());
 app.use(express.json({
-    limit: "5MB"
+    limit: "20MB"
 }));
 
 app.set('view engine', 'html');

@@ -83,7 +83,7 @@ export default {
           });
       }
     },
-    changeDisplayImage() {
+    async changeDisplayImage() {
       this.loading = true;
       /**
        * read file from users filesystem. When they choose a file,
@@ -102,7 +102,7 @@ export default {
       input.addEventListener("change", () => {
         let imageSize = input.files[0].size;
         console.log(`File size: ${imageSize / 1e6}MB`);
-        if (imageSize > 5e6) {
+        if (imageSize > 2e7) {
           // the image chosen by the user is too big
           console.error("Image file is too big!");
           console.error(`File size: ${imageSize / 1e6}MB`);
@@ -240,14 +240,15 @@ export default {
             items-center
             justify-center
             rounded-full
-            max-w-[100px] max-h-[100px]
+            w-[100px]
+            h-[100px]
           "
         >
           <img
             :src="`data:image/jpg;base64,${this.profile.displayImage}`"
             @click="changeDisplayImage"
             alt="Display image/profile picture"
-            class="rounded-full w-full h-full object-cover"
+            class="rounded-full w-full h-full object-contain"
           />
         </div>
         <div

@@ -32,10 +32,12 @@ export default Vuex.createStore({
     },
     actions: {
         async postImage(context, imageParams) {
-            console.log("postImage action dispatched!");
+            // console.log("postImage action dispatched!");
+            // console.log('Email: ', context.state.profile.email)
             return new Promise((resolve, reject) => {
                 axios.post('http://localhost:9000/api/image', {
-                        imageParams
+                        imageParams,
+                        email: context.state.profile.email
                     })
                     .then((res) => {
                         console.log(res)

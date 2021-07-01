@@ -39,7 +39,7 @@ export default {
       <div class="w-12 h-full flex-none bg-no-repeat">
         <router-link to="/">
           <img
-            src="/icons/logo.svg"
+            src="/icons/unsplash_clone_logo.svg"
             alt="logo icon"
             class="w-full h-full"
             srcset=""

@@ -6,7 +6,7 @@ import LogOut from '@/components/LogOut.vue'
 import Register from '@/components/Register.vue'
 import Profile from '@/views/Profile.vue'
 import EditProfile from '@/views/EditProfile.vue'
-import PostImage from "@/components/PostImage.vue"
+import PostImage from "@/views/PostImage.vue"
 
 /** @type {import('vue-router').RouterOptions['routes']} */
 export const routes = [{
