@@ -25,6 +25,14 @@ app.set('view engine', 'html');
 // Static folder
 app.use(express.static(__dirname + '/views/'));
 
+if (process.env.NODE_ENV === "development") {
+    process.env.ACCESS_CONTROL_ALLOW_ORIGIN = 'http://localhost:3000'
+}
+
+if (process.env.NODE_ENV === "production") {
+    process.env.ACCESS_CONTROL_ALLOW_ORIGIN = 'https://unsplash-clone-dh.netlify.app'
+}
+
 // base route 
 app.get('/', (req, res) => {
     res.send('Hello!')
@@ -32,6 +40,8 @@ app.get('/', (req, res) => {
 // Defining route middleware
 app.use('/api', require('./routes/api'));
 app.use('/users', require('./routes/users'))
+
+console.log(process.env.ACCESS_CONTROL_ALLOW_ORIGIN)
 
 // Listening to port
 app.listen(port);

@@ -5,6 +5,8 @@ import axios from 'axios'
 
 // dev url: http://localhost:9000
 // prod url: https://unsplash-clone-dh.herokuapp.com
+// const serverURL = 'http://localhost:9000'
+const serverURL = 'https://unsplash-clone-dh.herokuapp.com'
 
 export default Vuex.createStore({
     state: {
@@ -35,7 +37,7 @@ export default Vuex.createStore({
             // console.log("postImage action dispatched!");
             // console.log('Email: ', context.state.profile.email)
             return new Promise((resolve, reject) => {
-                axios.post('https://unsplash-clone-dh.herokuapp.com/api/image', {
+                axios.post(`${serverURL}/api/image`, {
                         imageParams,
                         email: context.state.profile.email
                     })
@@ -52,7 +54,7 @@ export default Vuex.createStore({
         async setProfile(context, email) {
             // get profile from database and update the vuex store profile with it
             return new Promise((resolve, reject) => {
-                axios.post("https://unsplash-clone-dh.herokuapp.com/users/profile", email)
+                axios.post(`${serverURL}/users/profile`, email)
                     // get profile info from mongodb from server
                     .then((res) => {
                         //user profile data received
@@ -67,7 +69,7 @@ export default Vuex.createStore({
         async registerAccount(context, newAccount) {
             return new Promise((resolve, reject) => {
                 axios
-                    .post("https://unsplash-clone-dh.herokuapp.com/users/register", {
+                    .post(`${serverURL}/users/register`, {
                         name: newAccount.name,
                         email: newAccount.email,
                         username: newAccount.username,
@@ -88,7 +90,7 @@ export default Vuex.createStore({
             // console.log(editedProfile)
             return new Promise((resolve, reject) => {
                 axios
-                    .patch("https://unsplash-clone-dh.herokuapp.com/users/profile", editedProfile)
+                    .patch(`${serverURL}/users/profile`, editedProfile)
                     .then((res) => {
                         resolve(res) // return success message to component
                     })
@@ -102,7 +104,7 @@ export default Vuex.createStore({
         async updateProfileDisplayImage(context, data) {
             // this updates the whole profiles image. Nothing else.
             return new Promise((resolve, reject) => {
-                axios.patch('https://unsplash-clone-dh.herokuapp.com/users/profile/image', data)
+                axios.patch(`${serverURL}/users/profile/image`, data)
                     .then((res) => {
                         context.dispatch('setProfile', {
                             email: data.email
@@ -121,7 +123,7 @@ export default Vuex.createStore({
         async retrieveToken(context, credentials) { // get token from server, store in localstorage
             return new Promise((resolve, reject) => {
                 axios
-                    .post("https://unsplash-clone-dh.herokuapp.com/users/login/verify", {
+                    .post(`${serverURL}/users/login/verify`, {
                         email: credentials.email,
                         password: credentials.password,
                     })
