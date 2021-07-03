@@ -25,6 +25,10 @@ app.set('view engine', 'html');
 // Static folder
 app.use(express.static(__dirname + '/views/'));
 
+// base route 
+app.get('/', (req, res) => {
+    res.send('Hello!')
+})
 // Defining route middleware
 app.use('/api', require('./routes/api'));
 app.use('/users', require('./routes/users'))
