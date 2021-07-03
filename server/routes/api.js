@@ -24,13 +24,13 @@ const express = require('express');
 const router = express.Router();
 
 // CORS setup
-// router.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
-//   // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-//   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-//   next()
-// })
+router.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
+  // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+  next()
+})
 
 // mongodb setup
 const mongoose = require('mongoose')

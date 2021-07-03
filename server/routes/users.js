@@ -18,14 +18,14 @@ const router = express.Router();
 // bcrypt setup 
 const bcrypt = require('bcrypt');
 
-// router.use((req, res, next) => {
-//     res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
-//     // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');  
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-//     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
+router.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');  
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
-//     next()
-// })
+    next()
+})
 
 // connecting to MongoDB with Mongoose
 const connectionString = `mongodb+srv://dbAdmin:${process.env.MONGODB_PASSWORD}@cluster0.wcdjk.mongodb.net/UnsplashClone?retryWrites=true&w=majority`;
