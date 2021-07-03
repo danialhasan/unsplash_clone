@@ -17,7 +17,9 @@ const {
 } = require("../modules/s3Client.js")
 
 // date-fns setup
-const formatIso = require("date-fns/formatIso")
+const {
+  formatIso
+} = require("date-fns")
 
 // express setup
 const express = require('express');
