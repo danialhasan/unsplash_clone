@@ -29,9 +29,10 @@ const userSchema = new mongoose.Schema({
         required: false
     },
     posts: {
-        type: [String],
+        type: Array,
         default: []
     },
+    // might have to convert all [String] instances to Array
     followers: {
         type: [String],
         default: []

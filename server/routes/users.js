@@ -19,8 +19,8 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 
 router.use((req, res, next) => {
-    // res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 

@@ -18,6 +18,7 @@ export default {
         description: "This is a success message!",
       },
       loading: false,
+      tags: [],
     };
   },
   props: [],
@@ -35,7 +36,7 @@ export default {
        * 2. Image is converted to base64 and dispatched to postImage action as argument
        * 3. When label is returned, it is displayed on the bottom of the page.
        *    3.1: flash message displays indigo "Uploading your image..."
-       * 4. Image object is created with image as base64, alongside array of labels/tags.
+       * 4. Image object is created with image as base64, alongside array of labels/imageTags.
        * 5. Image object is pushed to mongodb database, into the posts collection.
        *    5.1: flash message displays green "Image uploaded!..."
        * 6. this.loading = false
@@ -44,7 +45,7 @@ export default {
     async postImage(image) {
       const uuid = uuidv4();
       this.loading = true;
-      console.log("uploadImage called");
+      console.log("getImageFromUser called");
       this.showFlashMessage = true;
       this.flashMessageData = {
         role: "info",
@@ -59,9 +60,22 @@ export default {
         .dispatch("postImage", {
           image,
           uuid,
-        }) //$store.dispatch only takes one argument
+        }) //$store.dispatch only takes one argument, an object.
         .then((result) => {
           console.log(result);
+          let imageTags = [];
+          try {
+            for (let i = 0; i < result.data.length; i++) {
+              const tagObject = result.data[i];
+              console.log(tagObject);
+              console.log(tagObject.Name);
+              imageTags.push(tagObject.Name);
+            }
+            this.tags = imageTags;
+            console.log(imageTags);
+          } catch (error) {
+            console.error(error);
+          }
           this.showFlashMessage = true;
           this.flashMessageData = {
             role: "success",
@@ -69,7 +83,7 @@ export default {
             accentColor: "border-green-500",
             textColor: "text-green-700",
             title: "Success!",
-            description: "Rekognition labels received!",
+            description: "Your image was uploaded successfully.",
           };
           this.deleteFlashMessage();
           this.loading = false;
@@ -92,7 +106,7 @@ export default {
           return;
         });
     },
-    async uploadImage() {
+    async getImageFromUser() {
       this.loading = true;
       /**
        * Get file from filesystem.
@@ -140,7 +154,7 @@ export default {
             image = image.split(",");
             image = image[1];
             this.postImage(image);
-            console.log(image);
+            // console.log(image);
             return image;
           } catch (error) {
             console.error(error);
@@ -183,7 +197,7 @@ export default {
             font-bold
             text-gray-50
           "
-          @click="uploadImage"
+          @click="getImageFromUser"
         >
           <span v-if="loading" id="loading_icon">
             <svg
@@ -210,7 +224,26 @@ export default {
         </button>
       </div>
     </div>
-    <span>Your labels are: Feline, Cat, Animal</span>
+    <span v-if="tags.length > 0">
+      Your labels are:
+      <ul v-for="tag in this.tags" :key="tag" class="text-white flex">
+        <li
+          class="
+            bg-gradient-to-r
+            from-pink-500
+            via-red-500
+            to-yellow-500
+            rounded-full
+            py-2
+            px-6
+            my-1
+            w-auto
+          "
+        >
+          {{ tag }}
+        </li>
+      </ul>
+    </span>
     <div class="absolute bottom-0 left-0 border w-full">
       <bottom-nav />
     </div>

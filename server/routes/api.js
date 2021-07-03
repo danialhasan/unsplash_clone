@@ -16,54 +16,46 @@ const {
   s3Client
 } = require("../modules/s3Client.js")
 
+// date-fns setup
+const formatIso = require("date-fns/formatIso")
+
 // express setup
 const express = require('express');
 const router = express.Router();
 
 // CORS setup
 router.use((req, res, next) => {
-  // res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.setHeader('Access-Control-Allow-Origin', 'https://unsplash-clone-dh.netlify.app');
+  // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
   next()
 })
 
+// mongodb setup
+const mongoose = require('mongoose')
+const mongodbPassword = process.env.MONGODB_PASSWORD
+const userSchema = require('../schema/userSchema.js')
+const User = mongoose.model("user", userSchema, "Users")
 
+
+// routes
 router.get('/', (req, res) => {
   res.send("This is the server API root handler!")
   console.log(req)
 });
 
-let variable;
-async function processImage(base64String) {
-  // let imageBytes = new ArrayBuffer(base64String.length)
-  // let ua = new Uint8Array(imageBytes);
-  // for (var i = 0; i < base64String.length; i++) {
-  //   ua[i] = base64String.charCodeAt(i);
-  // }
-  // const client = new RekognitionClient({
-  //   region: process.env.AWS_REGION
-  // });
-
-  // const params = {
-  //   "Image": {
-  //     "Bytes": ua
-  //   },
-  //   "MaxLabels": 3,
-  //   "MaxConfidence": 60
-  // };
-  // const command = new DetectLabelsCommand(params)
-
-  // let awsResponse = await client.send(command)
-  //   .then((response) => {
-  //     res.send(response)
-  //     console.log(response)
-  //   })
-  //   .catch((error) => {
-  //     throw error
-  //   })
-  // console.log(awsResponse) 
+async function findUser(email) {
+  /**
+   * findOne resolves to the document (if it exists), or null (if the document does not exist)
+   */
+  try {
+    return await User.findOne({
+      email
+    })
+  } catch {
+    console.log("findUser function failed in api.js on server")
+  }
 }
 
 async function createBucket(bucketName) {
@@ -137,9 +129,10 @@ async function interactWithRekognition(S3Object) {
 }
 router.route('/image')
   .post(async (req, res) => {
-    let imageBase64Encoded = req.body.imageParams.image
-    let imageUUID = req.body.imageParams.uuid //used to identify the image.
-    let buffer = new Buffer.from(imageBase64Encoded, 'base64') // converting base64 base64ImageString string to buffer
+    const imageBase64Encoded = req.body.imageParams.image
+    const imageUUID = req.body.imageParams.uuid //used to identify the image.
+    const email = req.body.email
+    const buffer = new Buffer.from(imageBase64Encoded, 'base64') // converting base64 base64ImageString string to buffer
     // interactWithRekognition()
     const bucketParams = {
       Bucket: "unsplashclone-rekognition-bucket",
@@ -151,22 +144,56 @@ router.route('/image')
       ContentEncoding: 'base64'
     };
     try {
+      // add image to bucket
       let s3Results = await interactWithS3(bucketParams)
       if (s3Results === null) {
         console.log('❌ interactWithS3 returned null:', s3Results);
         return;
       }
-      console.log('✅ interactWithS3() Promise Success:', s3Results)
+      console.log('✅ interactWithS3 Results:', s3Results)
       console.log('⌛️ Interacting with Rekognition...');
+      // image was added to bucket. Point rekognition to it and get labels
       let rekognitionResults = await interactWithRekognition({
         "Bucket": bucketParams.Bucket,
         "Name": bucketParams.Key
       })
       let imageLabels = rekognitionResults.Labels
       console.log('✅ Rekognition Results:', rekognitionResults);
-      res.send(imageLabels)
+      // Labels were received. Find user in database and save image object to their
+      // posts array, each post being an object with the image base64 encoded, an array of tags, and the date posted.
+      const post = {
+        image: imageBase64Encoded,
+        imageUUID,
+        tags: imageLabels,
+        date: formatIso(new Date)
+      }
+
+      console.log('⌛️ Saving post to MongoDB...')
+      const user = await findUser(email)
+
+      user.posts.push(post);
+      // console.log('User.posts before save:', user.posts);
+
+      user.save().then(() => {
+        // I'm sending imageLabels instead of the callback argument (savedUser)
+        // because theres no point in sending the entire user database profile
+        // when all I need is a saved user confirmation and the image labels. 
+        res.status(200).send(imageLabels);
+        console.log('✅ Post saved successfully!')
+
+      }).catch((err) => {
+        console.log('❌ Post could not be saved to MongoDB.')
+        console.log(err);
+        res.status(404).send('Post could not be saved to MongoDB.');
+        throw err
+      })
+      // console.log('User.posts after save:', user.posts);
+      // console.log("post:", post)
+      // res.send(imageLabels)
     } catch (error) {
       console.log("❌ There was an error in POST route /api/image.")
+      res.status(500).send()
+      throw error
     }
     // console.log(response)
     // res.send("Request received!")
