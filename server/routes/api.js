@@ -17,7 +17,9 @@ const {
 } = require("../modules/s3Client.js")
 
 // date-fns setup
-const formatIso = require("date-fns")
+const {
+  formatISO
+} = require('date-fns')
 
 // express setup
 const express = require('express');
@@ -165,7 +167,7 @@ router.route('/image')
         image: imageBase64Encoded,
         imageUUID,
         tags: imageLabels,
-        date: formatIso(new Date)
+        date: formatISO(new Date)
       }
 
       console.log('⌛️ Saving post to MongoDB...')
