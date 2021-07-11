@@ -94,8 +94,11 @@ router.post('/login/verify', async (req, res) => {
             // NOTE log user in with JWT
             // generating JWT
             const accessTokenObject = {
-                accessToken: jwt.sign(JSON.stringify(userObject), process.env.ACCESS_TOKEN_SECRET)
+                accessToken: jwt.sign(JSON.stringify(userObject.email), process.env.ACCESS_TOKEN_SECRET)
+                // used to sign with JSON.stringify(userObject) and not just the email, but that 
+                // made the access token balloon to huge sizes not fit for localstorage.
             }
+            // console.log(JSON.stringify(userObject.email))
             res.status(214);
             res.statusMessage = "JWT Generated"
             res.json(accessTokenObject);

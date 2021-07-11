@@ -129,7 +129,7 @@ export default Vuex.createStore({
                     })
                     .then((res) => {
                         const accessToken = res.data.accessToken
-
+                        console.log(accessToken)
                         if (accessToken === undefined) {
                             // console.log("accessToken was undefined")
                             throw {
