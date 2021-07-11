@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === "production") {
 
 // base route 
 app.get('/', (req, res) => {
-    res.send(`Hello! ${process.env.ACCESS_CONTROL_ALLOW_ORIGIN}`)
+    res.send(`Hello! This is the root handler for Danial's Unsplash Clone project.`)
 })
 // Defining route middleware
 app.use('/api', require('./routes/api'));
