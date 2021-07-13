@@ -77,6 +77,7 @@ router.route('/login')
         res.send("This is the login POST route")
     })
 router.post('/login/verify', async (req, res) => {
+    // let success = await emptyCollections()
     console.log(req.body.email)
     console.log(req.body.password)
     // createUser(req.body.username, req.body.password)

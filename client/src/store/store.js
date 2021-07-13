@@ -5,8 +5,8 @@ import axios from 'axios'
 
 // dev url: http://localhost:9000
 // prod url: https://unsplash-clone-dh.herokuapp.com
-// const serverURL = 'http://localhost:9000'
-const serverURL = 'https://unsplash-clone-dh.herokuapp.com'
+const serverURL = 'http://localhost:9000'
+// const serverURL = 'https://unsplash-clone-dh.herokuapp.com'
 
 export default Vuex.createStore({
     state: {
